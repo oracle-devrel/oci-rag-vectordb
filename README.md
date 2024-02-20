@@ -67,7 +67,7 @@ To generate data, we will go into our Conda environment and install Python depen
 pip install -r requirements.txt
 ```
 
-After, we can run `data_generator.py`: 
+After, we can run `data_generator.py`:
 
 ```bash
 cd scripts/
