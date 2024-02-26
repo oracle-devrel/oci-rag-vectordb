@@ -41,7 +41,11 @@ Oracle hosts its OCI services in regions and availability domains. A region is a
 - You must have the Chicago region in your tenancy. Generative AI Agents is only available in Chicago.
 - You must have an Identity Domain before you create an agent. [Follow the steps here](https://docs.oracle.com/en-us/iaas/Content/generative-ai-agents/getting-started.htm#prereq-domain) to create an Identity Domain within your OCI Account.
 
-Instead of doing the whole infrastructure deployment manually (which includes Cache with Redis and OCI Search with OpenSearch) you can deploy both things with the following [Terraform stack](https://docs.oracle.com/en-us/iaas/Content/generative-ai-agents/create-stack.htm#create-stack):
+If you haven't already, [follow these instructions](https://docs.oracle.com/en-us/iaas/Content/Identity/domains/to-create-new-identity-domain.htm) to create a sub-identity domain within your OCI tenancy. This is done for authentication purposes, so no user outside the identity domain can access or use our GenAI agent without permission.
+
+Then, [configure client access](https://docs.oracle.com/iaas/Content/Identity/defaultsettings/set-access-signing-certificate.htm) so users can use the signing certificate from IAM without connecting to the identity domain itself.
+
+Instead of doing the whole rest of the infrastructure deployment manually (which includes Cache with Redis and OCI Search with OpenSearch) deploy both things with the following [Terraform stack](https://docs.oracle.com/en-us/iaas/Content/generative-ai-agents/create-stack.htm#create-stack):
 
 1. Download the [prerequisite stack zip file](https://idem3zoqc0ti.objectstorage.us-ashburn-1.oci.customer-oci.com/p/MmUQVkbQKVfQT8V2ItM5Y3wqaM0uzRzpbI6RnFAXYLTL4sjxMcvZGrHtNTp3plKn/n/idem3zoqc0ti/b/genaiagent-service-stack/o/genaiagent-solution-accelerator-quickstart.zip) to your local machine.
 2. In the navigation bar of the Console, choose a region that hosts Generative AI Agents, for example, US Midwest (Chicago). If you don't know which region to choose, see [Regions with Generative AI Agents](https://docs.oracle.com/en-us/iaas/Content/generative-ai-agents/overview.htm#regions).
@@ -59,7 +63,7 @@ Instead of doing the whole infrastructure deployment manually (which includes Ca
 14. Click Run apply.
 15. Click Create.
 
-## 1. Create data sources
+## 1. Create/Use data
 
 We will generate some data points for our use case: we want to have **healthcare patient records** with some information from their previous visits. This is information we will give our LLM access to, through our Generative AI Agent, and ask the Agent questions about our patient records - this shows that even if the LLM hasn't trained for solving a specific type of prompt or query, RAG can facilitate this data *instantaneously* to the agent.
 
@@ -93,18 +97,41 @@ python data_converter.py
 
 This will generate `data/opensearch_data.json`, in the proper format for OCI OpenSearch. Now that we have our data properly-formatted, we can create these data sources.
 
+Now that we have our synthetic data ready, we will be able to create a data source in OpenSearch to query against this data.
 
+## 2. Create endpoint & data source
 
+We will create an endpoint using OCI's Console. Our data will be hosted in this private endpoint, and we'll be able to link this private endpoint with an agent in the next step, in order to interact with our data:
 
-Now that we have our synthetic data ready, we can create these data sources in OpenSearch.
+![Creating Endpoint](./img/endpoint.PNG)
 
-In 
+> **Note**: make sure you select the VCN you created in step 0, and select the `private` subnet (not the public one).
 
-## 2. Create endpoint to consume data
+Now, we can create the corresponding Data Source:
+
+![Creating Data Source](./img/data_source_1.PNG)
+
+![Creating Data Source - 2](./img/data_source_2.PNG)
+
+> **Note**: 'OpenSearch Private IP' can be obtained as I do in the picture below:
+
+![Obtaining OpenSearch private ip](./img/private_ip.PNG)
 
 ## 3. Create agent to point to data source and identity domain
 
+Considering we created our Identity Domain in step 0, we will now associate this Identity Domain to our Agent, to restrict access to unauthorized users.
+
+Let's create the agent and point to this created identity domain:
+
+![Create Agent](./img/agent.PNG)
+
+Our agent is now ready!
+
 ## 4. Talk to your new agent
+
+We can access our agent and start talking to it - and query about our data:
+
+![Launch agent](./img/launch_agent.PNG)
 
 ## Demo
 
