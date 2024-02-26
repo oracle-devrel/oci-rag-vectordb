@@ -59,7 +59,9 @@ Instead of doing the whole infrastructure deployment manually (which includes Ca
 14. Click Run apply.
 15. Click Create.
 
-Finally, we will generate some data points for our use case: we want to have **healthcare patient records** with some information from their previous visits. This is information we will give our LLM access to, through our Generative AI Agent, and ask the Agent questions about our patient records - this shows that even if the LLM hasn't trained for solving a specific type of prompt or query, RAG can facilitate this data *instantaneously* to the agent.
+## 1. Create data sources
+
+We will generate some data points for our use case: we want to have **healthcare patient records** with some information from their previous visits. This is information we will give our LLM access to, through our Generative AI Agent, and ask the Agent questions about our patient records - this shows that even if the LLM hasn't trained for solving a specific type of prompt or query, RAG can facilitate this data *instantaneously* to the agent.
 
 To generate data, we will go into our Conda environment and install Python dependencies to produce this data:
 
@@ -76,111 +78,33 @@ python data_generator.py
 
 The console will ask for how many synthetic users' data you want. For testing purposes, this can be any small value that will let us test; for your own use case in practice, your only job is to select which data will go into the vector database, and in which form (JSON, structured data, raw text... and their properties (if any)).
 
-## 1. Create data sources
+Finally, we need to run `data_converter.py` to convert the data source into expected OCI OpenSearch format. From the docs, this is the expected format for a JSON Object:
+
+```json
+{"index": {}}
+{"title": "", "body": "Oracle Cloud Infrastructure Documentation\nAll Pages\nSkip to main content\nKnown Issues for Compute\nKnown issues have been identified in Compute...", "url": "https://docs.oracle.com/en-us/iaas/Content/Compute/known-issues.htm"}
+```
+
+For that, we just have to execute the following script, making sure that there's a file called `data/generated_data.json` in your `data/` directory:
+
+```bash
+python data_converter.py
+```
+
+This will generate `data/opensearch_data.json`, in the proper format for OCI OpenSearch. Now that we have our data properly-formatted, we can create these data sources.
+
+
+
+
+Now that we have our synthetic data ready, we can create these data sources in OpenSearch.
+
+In 
 
 ## 2. Create endpoint to consume data
 
 ## 3. Create agent to point to data source and identity domain
 
 ## 4. Talk to your new agent
-
-
-
-
-Finally, we install Python dependencies:
-
-```sh
-pip install -r requirements.txt
-```
-
-Then, we will create a Bucket in our OCI tenancy, and upload the pictures we want to analyze over there. This will ultimately depend on your use case, if you're trying to count the number of objects in an image (for traffic management), count people (for access management)... You will have to decide.
-
-## 1. Create OCI Bucket
-
-Let's create the Bucket:
-
-1. Open the **Navigation** menu in the Oracle Cloud console and click **Storage**. Under **Object Storage & Archive Storage**, click **Buckets**.
-
-2. On the **Buckets** page, select the compartment where you want to create the bucket from the **Compartment** drop-down list in the **List Scope** section. Make sure you are in the region where you want to create your bucket.
-
-3. Click **Create Bucket**.
-
-4. In the **Create Bucket** panel, specify the following:
-    - **Bucket Name:** Enter a meaningful name for the bucket.
-    - **Default Storage Tier:** Accept the default **Standard** storage tier. Use this tier for storing frequently accessed data that requires fast and immediate access. For infrequent access, choose the **Archive** storage tier.
-    - **Encryption:** Accept the default **Encrypt using Oracle managed keys**.
-
-5. Click **Create** to create the bucket.
-
-  ![The completed Create Bucket panel is displayed.](./img/create-bucket-panel.png)
-
-The new bucket is displayed on the **Buckets** page.
-
-  ![The new bucket is displayed on the Buckets page.](./img/bucket-created.png)
-
-## 1. (Optional) Running Image Classification with Object Storage
-
-We will run `scripts/image_classification.py`, but before, we need to obtain some info from our OCI Bucket and replace it in our script, line 37:
-
-![Information needed from bucket](./img/info_needed_bucket.PNG)
-
-Then, we can just run the following command:
-
-```bash
-python image_classification.py
-```
-
-To run OCI Vision's image classification against that image. These results will be in JSON format.
-
-## 2. (Optional) Running Object Detection with Object Storage
-
-We will repeat the steps to obtain the information as in step 1 above:
-
-![Information needed from bucket for Object Detection](./img/info_needed_bucket_object_detection.PNG)
-
-Then we can proceed and run the following command:
-
-```bash
-python object_detection.py
-```
-
-And we'll obtain a JSON object detailing detections.
-
-Optionally, you can uncomment the block starting in line 107, to visualize these results. Note that you must have the file locally and reference it in order to draw detections on top of the local image:
-
-![Uncomment this code block](./img/codeblock_uncomment.PNG)
-
-## 3. Batch processing any video with OCI Vision
-
-We have prepared two different scripts for you:
-
-- One script will generate an output MP4 file with results inserted into it.
-- The other script will process the video frame-by-frame, process detections into a single `.json` file, but won't produce an output file. It's a way to learn how to invoke the service and aggregate results.
-
-### Run Detector
-
-```bash
-python detector_video.py [-h] --video-file VIDEO_FILE [--model-id MODEL_ID] 
-    [--output-frame-rate OUTPUT_FRAME_RATE] [--confidence-threshold CONFIDENCE_THRESHOLD] [-v]
-```
-
-For example, in my case, where I want only to draw objects above 80% model confidence, 30 frames per second (in my output video), and using the standard OCI Vision model (not a custom one), I would run:
-
-```bash
-python detector_video.py --video-file="H:/Downloads/my_video.mp4" --output-frame-rate="30" --confidence-threshold="80" -v
-```
-
-### Create Output Video (CPU-intensive)
-
-```bash
-python video_processer.py --file FILE_PATH
-```
-
-For example:
-
-```bash
-python video_processer.py --file="H:/Downloads/my_video.mp4" --mode="moderate"
-```
 
 ## Demo
 
@@ -192,13 +116,15 @@ Here’s an use case being solved with OCI Vision + Python:
 
 [App Pattern: OCI Vision Customized Object Detector in Python](https://www.youtube.com/watch?v=B9EmMkqnoGQ&list=PLPIzp-E1msraY9To-BB-vVzPsK08s4tQD&index=2)
 
+[This is a tutorial](https://docs.oracle.com/en/learn/oci-opensearch/index.html#introduction) about OCI OpenSearch if you're interested in learning more about vectorization, connecting to the cluster, ingesting data, searching for data and visualizing it.
+
 ## Physical Architecture
 
 ![arch](./img/arch.PNG)
 
 ## Contributing
 
-This project is open source.  Please submit your contributions by forking this repository and submitting a pull request!  Oracle appreciates any contributions that are made by the open source community.
+This project is open source. Please submit your contributions by forking this repository and submitting a pull request! Oracle appreciates any contributions that are made by the open source community.
 
 ## License
 
