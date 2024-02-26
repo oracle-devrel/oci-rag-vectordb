@@ -25,50 +25,48 @@ with open('../data/janedoe.json', 'r') as file:
     for _ in range(number_generations):
         patient_gender = random.choice(["male", "female"])
         fake_data = {
-            "patient":{
-                "name":fake.name_male() if patient_gender == "male" else fake.name_female(),
-                "age":random.randint(15, 55),
-                "gender":patient_gender,
-                "blood_type":random.choice(['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-']),
-                "address":fake.address(),
-                "phone":fake.msisdn(),
-                "last_visit": "2023-05-12",
-                "passport": fake.passport_number(),
-                "appointments":[
-                    {
-                        "doctor":"Dr. John Smith",
-                        "date":"2023-03-01",
-                        "time":"14:00",
-                        "reason":"Annual Checkup"
-                    },
-                    {
-                        "doctor":"Dr. John Smith",
-                        "date":"2023-05-12",
-                        "time":"10:30",
-                        "reason":"Follow-up for knee surgery"
-                    }
-                ],
-                "medical_records":[
-                    {
-                        "date":"2022-12-15",
-                        "doctor":"Dr. Jane Doe",
-                        "diagnosis":"Common cold",
-                        "prescription":"Rest, fluids, and over-the-counter medication"
-                    },
-                    {
-                        "date":"2022-02-11",
-                        "doctor":"Dr. John Smith",
-                        "diagnosis":"Knee injury",
-                        "prescription":"Physical therapy and pain medication"
-                    }
-                ]
-            }
+            "name":fake.name_male() if patient_gender == "male" else fake.name_female(),
+            "age":random.randint(15, 55),
+            "gender":patient_gender,
+            "blood_type":random.choice(['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-']),
+            "address":fake.address(),
+            "phone":fake.msisdn(),
+            "last_visit": "2023-05-12",
+            "passport": fake.passport_number(),
+            "appointments":[
+                {
+                    "doctor":"Dr. John Smith",
+                    "date":"2023-03-01",
+                    "time":"14:00",
+                    "reason":"Annual Checkup"
+                },
+                {
+                    "doctor":"Dr. John Smith",
+                    "date":"2023-05-12",
+                    "time":"10:30",
+                    "reason":"Follow-up for knee surgery"
+                }
+            ],
+            "medical_records":[
+                {
+                    "date":"2022-12-15",
+                    "doctor":"Dr. Jane Doe",
+                    "diagnosis":"Common cold",
+                    "prescription":"Rest, fluids, and over-the-counter medication"
+                },
+                {
+                    "date":"2022-02-11",
+                    "doctor":"Dr. John Smith",
+                    "diagnosis":"Knee injury",
+                    "prescription":"Physical therapy and pain medication"
+                }
+            ]
         }
         print('[NEW] {} | {} || {} | Phone Number: {}'.format(
-            fake_data['patient']['name'],
-            fake_data['patient']['gender'],
-            fake_data['patient']['passport'],
-            fake_data['patient']['phone']
+            fake_data['name'],
+            fake_data['gender'],
+            fake_data['passport'],
+            fake_data['phone']
         ))
         all_data.append(fake_data)
 
