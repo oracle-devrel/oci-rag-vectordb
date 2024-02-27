@@ -7,7 +7,11 @@ with open('../data/generated_data.json', 'r') as file:
     line_writer = list()
     for item in data:
         line_writer.append({"index": {}})
-        line_writer.append(item)
+        extended_item = dict()
+        extended_item['body'] = item
+        extended_item['url'] = ''
+        extended_item['title'] = ''
+        line_writer.append(extended_item)
     
 
 #{"title": "", "body": "Oracle...", "url": "https://docs.oracle.com/en-us/iaas/Content/Compute/known-issues.htm"}
