@@ -188,6 +188,10 @@ We can access our agent and start talking to it - and query about our data:
 
 ![Launch agent](./img/launch_agent.PNG)
 
+We observe that, when we make requests about our health patients, we receive accurate responses from the Agent, meaning that we've successfully integrated our data source with the Generative AI Agent!
+
+![End Result](./img/result_end.PNG)
+
 ## Demo
 
 TODO
