@@ -4,14 +4,26 @@ with open('../data/generated_data.json', 'r') as file:
     data = json.load(file)
     all_data = list()
 
+    i = 0
     line_writer = list()
     for item in data:
-        line_writer.append({"index": {}})
+        line_writer.append({"index": {"_index": "11", "_id": i}})
         extended_item = dict()
-        extended_item['body'] = item
-        extended_item['url'] = ''
-        extended_item['title'] = ''
-        line_writer.append(extended_item)
+        
+        
+        #extended_item['url'] = ''
+        #extended_item['title'] = ''
+        # we build our formatted string
+        patient_str = '''name: {name}, age: {age}, gender: {gender}, blood_type: {blood_type}, address: 
+        {address}, phone: {phone}, last_visit: {last_visit}, passport: {passport}'''.format(**item).replace("\"", "")
+
+        extended_item['data'] = ', '.join("{!s}={!r}".format(key,val) for (key,val) in item.items())
+        #"yesterday:{yesterday}, today:{today}, tomorrow:{tomorrow}".format(**mydict)
+
+        #str_data = '''{"data": {}}'''.format(extended_item['data'])
+        print(patient_str)
+        line_writer.append({"data": "{})".format(patient_str).replace("\n", " ")})
+        i += 1
     
 
 #{"title": "", "body": "Oracle...", "url": "https://docs.oracle.com/en-us/iaas/Content/Compute/known-issues.htm"}
