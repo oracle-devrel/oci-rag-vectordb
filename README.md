@@ -82,11 +82,11 @@ python data_generator.py
 
 The console will ask for how many synthetic users' data you want. For testing purposes, this can be any small value that will let us test; for your own use case in practice, your only job is to select which data will go into the vector database, and in which form (JSON, structured data, raw text... and their properties (if any)).
 
-Finally, we need to run `data_converter.py` to convert the data source into expected OCI OpenSearch format. From the docs, this is the expected format for a JSON Object:
+Finally, we need to run `data_converter.py` to convert the data source into expected OCI OpenSearch format. From the docs, [this is the expected format](https://opensearch.org/docs/latest/im-plugin/) for a JSON Object being inserted in OpenSearch:
 
 ```json
-{"index": {}}
-{"title": "", "body": "Oracle Cloud Infrastructure Documentation\nAll Pages\nSkip to main content\nKnown Issues for Compute\nKnown issues have been identified in Compute...", "url": "https://docs.oracle.com/en-us/iaas/Content/Compute/known-issues.htm"}
+{ "index": { "_index": "<index>", "_id": "<id>" } }
+{ "A JSON": "document" }
 ```
 
 For that, we just have to execute the following script, making sure that there's a file called `data/generated_data.json` in your `data/` directory:
@@ -99,7 +99,62 @@ This will generate `data/opensearch_data.json`, in the proper format for OCI Ope
 
 Now that we have our synthetic data ready, we will be able to create a data source in OpenSearch to query against this data.
 
-## 2. Create endpoint & data source
+We need to connect to the VM in the same private subnet as our deployed OpenSearch and Redis cluster; through this VM, we will push the generated data into the OpenSearch cluster:
+
+## 2. Upload data to OpenSearch cluster
+
+We SSH to the VM instance. If you don't remember your creation details, you can go to [your OCI Stacks](https://cloud.oracle.com/resourcemanager/stacks?region=us-chicago-1), click on your Stack, and view the created resources (it will include the instance's IP address and the SSH private key you used upon stack deployment):
+
+![Stack data output](./img/extra_info.PNG)
+
+```bash
+# if you don't have FTP for file transfer, first transfer the file to your VM instance
+scp -i <private key file> ./iaas.json opc@<instance’s public ip address>:~/
+
+# then, now that we have the file, SSH into the server
+ssh -i <private key file> opc@<instance’s public ip address>
+```
+
+We create the search index by running the following command:
+
+```bash
+curl -XPUT https://<OPENSEARCH PRIVATE IP ADDRESS>:9200/<NAME OF YOUR ENDPOINT> -u <OPENSEARCH_USER>:<OPENSEARCH_PW> --insecure.
+```
+
+For example, something like this:
+
+```bash
+curl -XPUT https://10.0.1.0:9200/patients -u myuser:mypassword --insecure
+```
+
+Then, we shall load data into this new index:
+
+```bash
+curl -H 'Content-Type: application/x-ndjson' -XPOST https://<OPENSEARCH PRIVATE IP ADDRESS>:9200/patients/_bulk?pretty --data-binary @opensearch_data.json -u user:password -–insecure
+```
+
+Verify if the data was loaded correctly by running the following command:
+
+```bash
+curl -XGET https://<OPENSEARCH PRIVATE IP ADDRESS>:9200/patients/_count?pretty -u 
+osmaster:Osmaster@123 -–insecure
+```
+
+You should an output similar to this one, if everything was done properly:
+
+```json
+{
+  "count" : 10,
+  "_shards" : {
+    "total" : 1,
+    "successful" : 1,
+    "skipped" : 0,
+    "failed" : 0
+  }
+}
+```
+
+## 3. Create endpoint & data source
 
 We will create an endpoint using OCI's Console. Our data will be hosted in this private endpoint, and we'll be able to link this private endpoint with an agent in the next step, in order to interact with our data:
 
@@ -107,7 +162,7 @@ We will create an endpoint using OCI's Console. Our data will be hosted in this 
 
 > **Note**: make sure you select the VCN you created in step 0, and select the `private` subnet (not the public one).
 
-Now, we can create the corresponding Data Source:
+Now, we can create the corresponding Data Source. Make sure you reference the index you created on step 2 (in our case called `patients`):
 
 ![Creating Data Source](./img/data_source_1.PNG)
 
@@ -117,7 +172,7 @@ Now, we can create the corresponding Data Source:
 
 ![Obtaining OpenSearch private ip](./img/private_ip.PNG)
 
-## 3. Create agent to point to data source and identity domain
+## 4. Create agent to point to data source and identity domain
 
 Considering we created our Identity Domain in step 0, we will now associate this Identity Domain to our Agent, to restrict access to unauthorized users.
 
@@ -127,7 +182,7 @@ Let's create the agent and point to this created identity domain:
 
 Our agent is now ready!
 
-## 4. Talk to your new agent
+## 5. Talk to your new agent
 
 We can access our agent and start talking to it - and query about our data:
 
@@ -135,13 +190,11 @@ We can access our agent and start talking to it - and query about our data:
 
 ## Demo
 
-[OCI Vision Overview - Exploring the Service](https://www.youtube.com/watch?v=eyJm7OlaRBk&list=PLPIzp-E1msraY9To-BB-vVzPsK08s4tQD&index=4)
+TODO
 
 ## Tutorial
 
-Here’s an use case being solved with OCI Vision + Python:
-
-[App Pattern: OCI Vision Customized Object Detector in Python](https://www.youtube.com/watch?v=B9EmMkqnoGQ&list=PLPIzp-E1msraY9To-BB-vVzPsK08s4tQD&index=2)
+TODO
 
 [This is a tutorial](https://docs.oracle.com/en/learn/oci-opensearch/index.html#introduction) about OCI OpenSearch if you're interested in learning more about vectorization, connecting to the cluster, ingesting data, searching for data and visualizing it.
 
