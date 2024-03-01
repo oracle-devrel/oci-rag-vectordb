@@ -1,0 +1,41 @@
+{
+    "patient":{
+       "name":"Jane Doe",
+       "age":35,
+       "gender":"female",
+       "blood_type":"AB+",
+       "address":"123 Main Street, Anytown, USA",
+       "phone":"555-1234",
+       "last_visit": "2023-05-12",
+       "passport": "938778408",
+       "appointments":[
+          {
+             "doctor":"Dr. John Smith",
+             "date":"2023-03-01",
+             "time":"14:00",
+             "reason":"Annual Checkup"
+          },
+          {
+             "doctor":"Dr. John Smith",
+             "date":"2023-05-12",
+             "time":"10:30",
+             "reason":"Follow-up for knee surgery"
+          }
+       ],
+       "medical_records":[
+          {
+             "date":"2022-12-15",
+             "doctor":"Dr. Jane Doe",
+             "diagnosis":"Common cold",
+             "prescription":"Rest, fluids, and over-the-counter medication"
+          },
+          {
+             "date":"2022-02-11",
+             "doctor":"Dr. John Smith",
+             "diagnosis":"Knee injury",
+             "prescription":"Physical therapy and pain medication"
+          }
+       ]
+    }
+ }
+ 
