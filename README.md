@@ -10,6 +10,13 @@ This allows LLMs to acquire up-to-date knowledge, for example, the results of th
 
 Luckily, OCI GenAI Agents Service allows us to do just that: we will be able to upload our documents, process this data, put it into a Vector Store (OCI OpenSearch), create a Redis cluster for caching purposes, and provide users with a way to **consume** this data through a chatbot!
 
+For the infrastructure, we will have the following OCI Services present:
+
+- **OCI Redis** for caching user-agent interactions (so we can give some context to the model as well)
+- **OCI OpenSearch Cluster** for Vector Similarity Search (Vector Database) and storing indices with data
+- **OCI Compute** for connecting to the OpenSearch cluster securely (through OCI private subnet routing)
+- **OCI Generative AI Agents** for communicating and interacting with the data in our cluster
+
 Oracle Cloud Infrastructure Generative AI Agents (Beta) is a fully managed service that combines the power of large language models with an intelligent retrieval system to create contextually relevant answers by searching your knowledge base, making your AI applications smart and efficient.
 
 To use this service, index your data in OCI Search with OpenSearch and set up a cluster in OCI Cache with Redis for the cached user prompts and responses. Then you create an agent and attach your data source. Finally, you test your agent and allow it to generate insights and answer questions. We will see how to do all these steps in this application pattern.
