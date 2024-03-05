@@ -8,12 +8,12 @@ RAG is one of the most coveted use cases nowadays for AI. The great thing about 
 
 This allows LLMs to acquire up-to-date knowledge, for example, the results of this year's SuperBowl, regardless of when the LLM you're running inference against has been trained. Therefore, you can make your LLM more intelligent and provide it with updated data with little to no effort.
 
-Luckily, OCI GenAI Agents Service allows us to do just that: we will be able to upload our documents, process this data, put it into a Vector Store (OCI OpenSearch), create a Redis cluster for caching purposes, and provide users with a way to **consume** this data through a chatbot!
+Luckily, OCI GenAI Agents Service allows us to do just that: we will be able to upload our documents, process this data, put it into an Index Store (OCI OpenSearch), create a Redis cluster for caching purposes, and provide users with a way to **consume** this data through a chatbot!
 
 For the infrastructure, we will have the following OCI Services present:
 
 - **OCI Redis** for caching user-agent interactions (so we can give some context to the model as well)
-- **OCI OpenSearch Cluster** for Vector Similarity Search (Vector Database) and storing indices with data
+- **OCI OpenSearch Cluster** for Index Similarity Search (Index Database) and storing indices with data (Vector Stores will be available in upcoming releases)
 - **OCI Compute** for connecting to the OpenSearch cluster securely (through OCI private subnet routing)
 - **OCI Generative AI Agents** for communicating and interacting with the data in our cluster
 
@@ -47,6 +47,7 @@ Oracle hosts its OCI services in regions and availability domains. A region is a
 - [OCI SDK](https://docs.oracle.com/en-us/iaas/Content/API/Concepts/sdkconfig.htm)
 - You must have the Chicago region in your tenancy. Generative AI Agents is only available in Chicago.
 - You must have an Identity Domain before you create an agent. [Follow the steps here](https://docs.oracle.com/en-us/iaas/Content/generative-ai-agents/getting-started.htm#prereq-domain) to create an Identity Domain within your OCI Account.
+- Since this service is in beta at the moment (not for long), it is a Limited Availability service that requires explicit whitelisting for tenancy to have access to the service.
 
 If you haven't already, [follow these instructions](https://docs.oracle.com/en-us/iaas/Content/Identity/domains/to-create-new-identity-domain.htm) to create a sub-identity domain within your OCI tenancy. This is done for authentication purposes, so no user outside the identity domain can access or use our GenAI agent without permission.
 
@@ -87,7 +88,7 @@ cd scripts/
 python data_generator.py
 ```
 
-The console will ask for how many synthetic users' data you want. For testing purposes, this can be any small value that will let us test; for your own use case in practice, your only job is to select which data will go into the vector database, and in which form (JSON, structured data, raw text... and their properties (if any)).
+The console will ask for how many synthetic users' data you want. For testing purposes, this can be any small value that will let us test; for your own use case in practice, your only job is to select which data will go into the index store (vector store in the upcoming release) database, and in which form (JSON, structured data, raw text... and their properties (if any)).
 
 Finally, we need to run `data_converter.py` to convert the data source into expected OCI OpenSearch format. From the docs, [this is the expected format](https://opensearch.org/docs/latest/im-plugin/) for a JSON Object being inserted in OpenSearch:
 
@@ -207,7 +208,7 @@ TODO
 
 TODO
 
-[This is a tutorial](https://docs.oracle.com/en/learn/oci-opensearch/index.html#introduction) about OCI OpenSearch if you're interested in learning more about vectorization, connecting to the cluster, ingesting data, searching for data and visualizing it.
+[This is a tutorial](https://docs.oracle.com/en/learn/oci-opensearch/index.html#introduction) about OCI OpenSearch if you're interested in learning more about vectorization, indexation, connecting to the cluster, ingesting data, searching for data and visualizing it.
 
 ## Physical Architecture
 
