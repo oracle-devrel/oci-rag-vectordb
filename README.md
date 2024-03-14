@@ -4,22 +4,22 @@
 
 ## Introduction
 
-RAG is one of the most coveted use cases nowadays for AI. The great thing about RAG is that it allows you to augment the knowledge of an LLM without having to retrain it. How, you may ask? Well, it's a way for the LLM to extract information (like a database) and present this information to the user very quickly.
+RAG, or Retrieval-Augmented Generations is one of the most coveted use cases for AI today because it allows you to augment the knowledge of an LLM without having to retrain it. How, you may ask? Well, it's a way for the LLM to extract information (like a database) and present this information to the user very quickly.
 
-This allows LLMs to acquire up-to-date knowledge, for example, the results of this year's SuperBowl, regardless of when the LLM you're running inference against has been trained. Therefore, you can make your LLM more intelligent and provide it with updated data with little to no effort.
+This allows LLMs to acquire up-to-date knowledge like the results of this year's SuperBowl regardless of when the LLM you're running inference against has been trained. Therefore, you can make your LLM more intelligent and provide it with updated data with less effort.
 
-Luckily, OCI GenAI Agents Service allows us to do just that: we will be able to upload our documents, process this data, put it into an Index Store (OCI OpenSearch), create a Redis cluster for caching purposes, and provide users with a way to **consume** this data through a chatbot!
+OCI Generative AI Agents service allows us to do just that: we can upload our documents, process the data, put it into an Index Store (OCI OpenSearch), create a Redis cluster for caching purposes, and provide users with a way to **consume** this data through a chatbot!
 
-For the infrastructure, we will have the following OCI Services present:
+For the infrastructure, we will need the following OCI Services:
 
-- **OCI Redis** for caching user-agent interactions (so we can give some context to the model as well)
-- **OCI OpenSearch Cluster** for Index Similarity Search (Index Database) and storing indices with data (Vector Stores will be available in upcoming releases)
-- **OCI Compute** for connecting to the OpenSearch cluster securely (through OCI private subnet routing)
-- **OCI Generative AI Agents** for communicating and interacting with the data in our cluster
+- **OCI Redis** for caching user-agent interactions (so we can give some context to the model as well).
+- **OCI OpenSearch Cluster** for Index Similarity Search (Index Database) and storing indices with data (Vector Stores will be available in upcoming releases).
+- **OCI Compute** for connecting to the OpenSearch cluster securely (through OCI private subnet routing).
+- **OCI Generative AI Agents** for communicating and interacting with the data in our cluster.
 
 Oracle Cloud Infrastructure Generative AI Agents (Beta) is a fully managed service that combines the power of large language models with an intelligent retrieval system to create contextually relevant answers by searching your knowledge base, making your AI applications smart and efficient.
 
-To use this service, index your data in OCI Search with OpenSearch and set up a cluster in OCI Cache with Redis for the cached user prompts and responses. Then you create an agent and attach your data source. Finally, you test your agent and allow it to generate insights and answer questions. We will see how to do all these steps in this application pattern.
+To use this service, index your data in OCI Search with OpenSearch and set up a cluster in OCI Cache with Redis for the cached user prompts and responses. Then you create an agent and attach your data source. Finally, you test your agent and allow it to generate insights and answer questions. We will see how to do all these steps in the following application pattern.
 
 ### Use Cases
 
@@ -37,7 +37,7 @@ Oracle hosts its OCI services in regions and availability domains. A region is a
 
 ## 0. Prerequisites and setup
 
-- Oracle Cloud Infrastructure (OCI) Account with available credits to spend
+- Oracle Cloud Infrastructure (OCI) Account with available credits to spend - [sign up page](https://signup.cloud.oracle.com/)
 - [Appropriate policies for the GenAI Agents Service](https://docs.oracle.com/en-us/iaas/Content/generative-ai-agents/iam-policies.htm#policies) set up properly within your tenancy
 - [Oracle Cloud Infrastructure Documentation - Generative AI Agents](https://docs.oracle.com/en-us/iaas/Content/generative-ai-agents/overview.htm#overview)
 - [Oracle Cloud Infrastructure (OCI) Generative AI - Getting Started](https://docs.oracle.com/en-us/iaas/Content/generative-ai-agents/getting-started.htm#get-started)
@@ -53,7 +53,7 @@ If you haven't already, [follow these instructions](https://docs.oracle.com/en-u
 
 Then, [configure client access](https://docs.oracle.com/iaas/Content/Identity/defaultsettings/set-access-signing-certificate.htm) so users can use the signing certificate from IAM without connecting to the identity domain itself.
 
-Instead of doing the whole rest of the infrastructure deployment manually (which includes Cache with Redis and OCI Search with OpenSearch) deploy both things with the following [Terraform stack](https://docs.oracle.com/en-us/iaas/Content/generative-ai-agents/create-stack.htm#create-stack):
+Instead of doing the entirety of the infrastructure deployment manually (which includes Cache with Redis and OCI Search with OpenSearch) deploy both with the following [Terraform stack](https://docs.oracle.com/en-us/iaas/Content/generative-ai-agents/create-stack.htm#create-stack):
 
 1. Download the [prerequisite stack zip file](https://idem3zoqc0ti.objectstorage.us-ashburn-1.oci.customer-oci.com/p/MmUQVkbQKVfQT8V2ItM5Y3wqaM0uzRzpbI6RnFAXYLTL4sjxMcvZGrHtNTp3plKn/n/idem3zoqc0ti/b/genaiagent-service-stack/o/genaiagent-solution-accelerator-quickstart.zip) to your local machine.
 2. In the navigation bar of the Console, choose a region that hosts Generative AI Agents, for example, US Midwest (Chicago). If you don't know which region to choose, see [Regions with Generative AI Agents](https://docs.oracle.com/en-us/iaas/Content/generative-ai-agents/overview.htm#regions).
@@ -73,9 +73,9 @@ Instead of doing the whole rest of the infrastructure deployment manually (which
 
 ## 1. Create/Use data
 
-We will generate some data points for our use case: we want to have **healthcare patient records** with some information from their previous visits. This is information we will give our LLM access to, through our Generative AI Agent, and ask the Agent questions about our patient records - this shows that even if the LLM hasn't trained for solving a specific type of prompt or query, RAG can facilitate this data *instantaneously* to the agent.
+We will generate some data points for our use case as we want to have **healthcare patient records** with some information from their previous visits. This is information we will give our LLM access to through our Generative AI Agent, and ask the Agent questions about our patient records - this shows that even if the LLM hasn't trained for solving a specific type of prompt or query, RAG can facilitate this data *instantaneously* to the agent.
 
-To generate data, we will go into our Conda environment and install Python dependencies to produce this data:
+To generate data we will go into our Conda environment and install Python dependencies to produce this data:
 
 ```bash
 pip install -r requirements.txt
