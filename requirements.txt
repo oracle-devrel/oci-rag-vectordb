@@ -1,2 +1,6 @@
 Faker
 ujson
+tinydb
+fastapi
+python-multipart
+paramiko

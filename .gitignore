@@ -31,3 +31,6 @@ Temporary Items
 .crt
 .csr
 .pem
+
+# ignore auth.yaml file with sensitive information
+auth.yaml
