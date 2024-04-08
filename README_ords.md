@@ -259,27 +259,25 @@ Question: "Can you pull all information you have on racer id 6220?"
 
 > **Note**: you can also refer or query your data with whichever parameters you want. In this case, we've chosen the racer id as it's a unique identifier (sometimes, there are two racers with the same names, which cause confusions if you query them by just their name).
 
-![End Result](./img/redbull_result_end.PNG)
-
-Question: "Can you pull all information you have on racer id 6220?"
-
-![End Result](./img/redbull_result_end.PNG)
+![End Result](./img/answer_1.PNG)
 
 Question: "Can you pull all information you have on racer id 10574 and racer id 10304?"
 
-![End Result](./img/redbull_result_end.PNG)
+![End Result](./img/answer_2.PNG)
 
 Question: "How about the worst lap recorded for racer id 10304?"
 
-![End Result](./img/redbull_result_end.PNG)
+![End Result](./img/answer_3_1.PNG)
 
-Question: "What can he do to improve his sector 3 time? It was on the Texas F1 Grand Prix. I need recommendations to improve my sector time."
+![End Result](./img/answer_3_2.PNG)
 
-![End Result](./img/redbull_result_end.PNG)
+As you can see on the below image, the LLM also knows how to communicate with other laps from *Mark*, and is able to discern the good laps vs. the bad ones
 
-Question: "Considering that both drivers are in the F1 Texas circuit, what can they do to improve the lap times?"
+Question: "What can he do to improve his sector 3 time? It was on the Texas F1 Grand Prix. I need recommendations to improve his sector time."
 
-![End Result](./img/redbull_result_end.PNG)
+![End Result](./img/answer_4.PNG)
+
+> **Note**: here you can see semantic search in action: not only does the LLM find the right vectors to pull from OpenSearch, but also knows how to properly tackle issues in a specific sector for the track. It understands this sector has a lot of curves and gives personalized suggestions on how to improve it. (You may ask: how does the model know this?? The base model's knowledge is actually contributing to this analysis a lot, as we haven't given it any data about the characteristics of specific track sectors in F1.)
 
 ## Demo
 
