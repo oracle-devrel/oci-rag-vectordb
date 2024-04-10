@@ -31,3 +31,11 @@ Temporary Items
 .crt
 .csr
 .pem
+
+# ignore auth.yaml file with sensitive information
+auth.yaml
+
+# ignore some data files
+data/laps_db.json
+data/opensearch_redbull_data.json
+data/redbull_data.json
