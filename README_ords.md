@@ -59,15 +59,58 @@ pip install -r requirements.txt
 
 Now, we're ready to start working.
 
-## 1. ORDS Overview
+## 1. ORDS Overview and setup
 
 Oracle REST Data Services (ORDS) is a bridge between HTTP and Oracle Databases. In our case, we will be consuming an ORDS endpoint (hosted in the database that contains all F1 laps) and, therefore, we will be able to use this data as soon as it gets to the bastion.
 
-In this case, we will use some data from RedBull Racing laps in the F1 eSports game. See `data/redbull_data.json` for an example of what kind of data we will be storing in our database.
+In this case, we will use some data from [F1 eSports game](https://www.ea.com/en-gb/games/f1/f1-23). See `data/f1gamed_data.json` for an example of what kind of data we will be storing in our database.
 
-Therefore, all F1 laps are stored into the database, and we are able to consume all these laps from an ORDS endpoint.
+Therefore, all F1 game laps are stored into the database, and we are able to consume all these laps from an ORDS endpoint.
 
-1. In order to *manually* consume the endpoint, we can run the following command:
+For a full ORDS setup guide please visit [this page](https://docs.oracle.com/en/database/oracle/apex/23.2/htmig/configuring-ords.html#GUID-D688F4D6-FCAB-4C4D-BA6D-9A3506B3E05F).
+
+To recreate the F1 eSports Ingestion and Analytics you can follow [this guide](https://apexapps.oracle.com/pls/apex/f?p=133:180:13122153387920::::wid:3708)
+
+Here is how you can use ORDS to create API end point.
+
+- Login to APEX Workspace and navigate to SQL Workshop
+
+![SQL Workshop](./img/ords/1sqlworkshop.png)
+
+- Activate ORDS inside RESful Services
+
+![RESTful Services](./img/ords/2restfulservices.png)
+
+- Click Create Module in Modules section
+
+![Create Module](./img/ords/3modules.png)
+
+- Fill in necessary fields in Module Definition section and click Apply Changes, then click on Create Template from Resource Templates section at the bottom of the page
+
+![Module Definition](./img/ords/4moduledefinition.png)
+
+- Add URI Template, and click on Apply Changes, after that click on Create Handler from Resource Handlers section at the bottom of the page
+
+![Module Definition](./img/ords/5resourcetemplate.png)
+
+- Choose GET method and change Source Type to Media Resource
+
+![Module Definition](./img/ords/6resourcehandler.png)
+
+Create JSON object definition in Source section, here is an example of how you can structure your query:
+
+```sql
+SELECT 'application/json',
+       JSON_OBJECT('OBJECT NAME' VALUE (
+           SELECT JSON_ARRAYAGG(JSON_OBJECT(*) RETURNING CLOB)
+           FROM (
+               SELECT * FROM 'TABLE.NAME'
+           )
+       ) RETURNING CLOB) AS CD
+FROM DUAL
+```
+
+- To *manually* consume the endpoint, we can run the following command:
 
 ```bash
 # obfuscated since it's an unauthenticated rest endpoint
