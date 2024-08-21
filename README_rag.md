@@ -55,7 +55,7 @@ Then, [configure client access](https://docs.oracle.com/iaas/Content/Identity/de
 
 Instead of doing the whole rest of the infrastructure deployment manually (which includes Cache with Redis and OCI Search with OpenSearch) deploy both things with the following [Terraform stack](https://docs.oracle.com/en-us/iaas/Content/generative-ai-agents/create-stack.htm#create-stack):
 
-1. Download the [prerequisite stack zip file](https://idem3zoqc0ti.objectstorage.us-ashburn-1.oci.customer-oci.com/p/MmUQVkbQKVfQT8V2ItM5Y3wqaM0uzRzpbI6RnFAXYLTL4sjxMcvZGrHtNTp3plKn/n/idem3zoqc0ti/b/genaiagent-service-stack/o/genaiagent-solution-accelerator-quickstart.zip) to your local machine.
+1. Sign up for the [Beta program](https://apexadb.oracle.com/ords/f?p=108:501:508002131060566::::P501_SELF_NOMINATION:Self-Nomination) and download SDK.
 2. In the navigation bar of the Console, choose a region that hosts Generative AI Agents, for example, US Midwest (Chicago). If you don't know which region to choose, see [Regions with Generative AI Agents](https://docs.oracle.com/en-us/iaas/Content/generative-ai-agents/overview.htm#regions).
 3. Open the navigation menu and click Developer Services. Under Resource Manager, click Stacks.
 4. Choose a compartment that you have permission to work in.
