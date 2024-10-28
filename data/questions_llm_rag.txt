@@ -1,0 +1,19 @@
+Can you give me info on Mary Poole?
+
+And, can you also give me info on patient John Briggs?
+
+Could John Briggs donate blood to Mary Poole, based on their blood types?
+
+
+------
+------
+
+Can you pull all information you have on racer id 6220?
+
+Can you pull all information you have on racer id 10574 and racer id 10304?
+
+How about the worst lap recorded for racer id 10304?
+
+What can he do to improve his sector 3 time? It was on the Texas F1 Grand Prix. I need recommendations to improve his sector time.
+
+
