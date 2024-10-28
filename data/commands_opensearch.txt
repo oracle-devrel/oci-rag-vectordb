@@ -1,0 +1,82 @@
+curl -XPUT https://10.0.3.12:9200/health3 -u osmaster:Osmaster@123 --insecure 
+curl -H 'Content-Type: application/x-ndjson' -XPOST https://10.0.3.12:9200/health3/_bulk?pretty --data-binary @opensearch_data.json -u osmaster:Osmaster@123 --insecure
+curl -XGET https://10.0.3.12:9200/health3/_count/?pretty -u osmaster:Osmaster@123 --insecure 
+
+
+curl -XPUT "https://10.0.3.12:9200/_plugins/_security/api/securityconfig/config" -u osmaster:Osmaster@123 --insecure -H 'Content-Type: application/json' -d'
+{
+  "dynamic": {
+    "security_mode": "ENFORCING",
+    "http": {
+      "anonymous_auth_enabled": false,
+      "xff": {
+        "enabled": false
+      }
+    },
+    "authc": {
+      "openid_auth_domain": {
+                    "http_enabled": true,
+                    "transport_enabled": true,
+                    "order": 0,
+                    "http_authenticator": {
+                        "challenge": false,
+                        "type": "openid",
+                        "config": {
+                            "subject_key": "sub",
+                            "roles_key": "scope",
+                            "openid_connect_url": "https://idcs-079085887d6d4920b0203114bf7bb9be.identity.oraclecloud.com/.well-known/openid-configuration"
+                        }
+                    },
+                    "authentication_backend": {
+                        "type": "noop",
+                        "config": {}
+                    },
+                    "description": "Authenticate using OpenId connect"
+                },
+                "basic_internal_auth_domain": {
+                    "http_enabled": true,
+                    "transport_enabled": true,
+                    "order": 1,
+                    "http_authenticator": {
+                        "challenge": true,
+                        "type": "basic",
+                        "config": {}
+                    },
+                    "authentication_backend": {
+                        "type": "intern",
+                        "config": {}
+                    },
+                    "description": "Authenticate via HTTP Basic against internal users database"
+                }
+    },
+    "authz": null
+  }
+}'
+
+
+
+# Step 5: Create Readonly Role
+curl -XPUT "https://10.0.3.12:9200/_plugins/_security/api/roles/genaiagent_readall" -u osmaster:Osmaster@123 --insecure -H 'Content-Type: application/json' -d'{
+  "description": "Role to be used by Generative AI Agent having read only permission to all Indexes",
+  "cluster_permissions": [
+    "cluster_composite_ops_ro"
+  ],
+  "index_permissions": [{
+    "index_patterns": [
+      "*"
+    ],
+    "fls": [],
+    "masked_fields": [],
+    "allowed_actions": [
+      "read"
+    ]
+  }],
+  "tenant_permissions": []
+ }'
+ 
+# Step 6: Add role mapping for genaiagent_readall
+curl -XPUT "https://10.0.3.12:9200/_plugins/_security/api/rolesmapping/genaiagent_readall" -u osmaster:Osmaster@123 --insecure -H 'Content-Type: application/json' -d'{
+    "backend_roles" : [ "genaiagent" ],
+    "hosts" : [],
+    "users" : []
+  }'
