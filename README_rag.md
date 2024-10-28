@@ -10,6 +10,8 @@ This allows LLMs to acquire up-to-date knowledge, for example, the results of th
 
 Luckily, OCI GenAI Agents Service allows us to do just that: we will be able to upload our documents, process this data, and provide users with a way to **consume** this data through a chatbot!
 
+![chat with model - patient related 2](./img/chat_patient_2.png)
+
 Here's a list of the most prominent features of the service:
 
 - Supports several data on-boarding methods and interaction channels (chat interface or API)
@@ -33,7 +35,7 @@ In this specific solution, we will use Object Storage as our storage mechanism, 
 
 OCI Generative AI Agents is a fully managed service that combines the power of large language models (LLMs) with an intelligent retrieval system to create contextually relevant answers by searching your knowledge base, making your AI applications smart and efficient.
 
-To use this service, follow these four steps:
+To use this service, we'll follow these four steps:
 
 1. Create a knowledge base
 2. Add your data
