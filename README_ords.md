@@ -39,15 +39,15 @@ Oracle hosts its OCI services in regions and availability domains. A region is a
 
 - Oracle Cloud Infrastructure (OCI) Account with available credits to spend
 - [Appropriate policies for the GenAI Agents Service](https://docs.oracle.com/en-us/iaas/Content/generative-ai-agents/iam-policies.htm#policies) set up properly within your tenancy
-- [Oracle Cloud Infrastructure Documentation - Generative AI Agents](https://docs.oracle.com/en-us/iaas/Content/generative-ai-agents/overview.htm#overview)
+- [Oracle Cloud Infrastructure Documentation - Generative AI Agents](https://docs.public.oneportal.content.oci.oraclecloud.com/en-us/iaas/Content/generative-ai-agents/home.htm)
 - [Oracle Cloud Infrastructure (OCI) Generative AI - Getting Started](https://docs.oracle.com/en-us/iaas/Content/generative-ai-agents/getting-started.htm#get-started)
 - [Oracle Cloud Infrastructure (OCI) Generative AI - API](https://docs.oracle.com/en-us/iaas/api/#/en/generative-ai-agents/20240331/)
+- [OCI GenAI Agents - Concepts](https://docs.public.oneportal.content.oci.oraclecloud.com/en-us/iaas/Content/generative-ai-agents/concepts.htm#concepts)
 - [Python 3.10](https://www.python.org/downloads/release/python-3100/)
 - [Conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html)
 - [OCI SDK](https://docs.oracle.com/en-us/iaas/Content/API/Concepts/sdkconfig.htm)
-- You must have the Chicago region in your tenancy. Generative AI Agents is only available in Chicago.
+- You must be subscribed to the Chicago region in your tenancy. Generative AI Agents is only available in Chicago at this moment.
 - You must have an Identity Domain before you create an agent. [Follow the steps here](https://docs.oracle.com/en-us/iaas/Content/generative-ai-agents/getting-started.htm#prereq-domain) to create an Identity Domain within your OCI Account.
-- Since this service is in beta at the moment (not for long), it is a Limited Availability service that requires explicit whitelisting for tenancy to have access to the service.
 
 If you've just ran into this README, this is an extension of the functionality present in [this README file](README.md). If you haven't previously set up a GenAI Agent or performed the OCI Cloud setup, please refer to [the README](README.md) to find out how to set everything up to get the resources you need to complete this use case.
 
@@ -63,7 +63,7 @@ Now, we're ready to start working.
 
 Oracle REST Data Services (ORDS) is a bridge between HTTP and Oracle Databases. In our case, we will be consuming an ORDS endpoint (hosted in the database that contains all F1 laps) and, therefore, we will be able to use this data as soon as it gets to the bastion.
 
-In this case, we will use some data from [F1 eSports game](https://www.ea.com/en-gb/games/f1/f1-23). See `data/f1gamed_data.json` for an example of what kind of data we will be storing in our database.
+In this case, we will use some data from [F1 eSports game](https://www.ea.com/en-gb/games/f1/f1-23). See `data/f1game_data.json` for an example of what kind of data we will be storing in our database.
 
 Therefore, all F1 game laps are stored into the database, and we are able to consume all these laps from an ORDS endpoint.
 

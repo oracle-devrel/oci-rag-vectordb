@@ -8,25 +8,57 @@ RAG is one of the most coveted use cases nowadays for AI. The great thing about 
 
 This allows LLMs to acquire up-to-date knowledge, for example, the results of this year's SuperBowl, regardless of when the LLM you're running inference against has been trained. Therefore, you can make your LLM more intelligent and provide it with updated data with little to no effort.
 
-Luckily, OCI GenAI Agents Service allows us to do just that: we will be able to upload our documents, process this data, put it into an Index Store (OCI OpenSearch), create a Redis cluster for caching purposes, and provide users with a way to **consume** this data through a chatbot!
+Luckily, OCI GenAI Agents Service allows us to do just that: we will be able to upload our documents, process this data, and provide users with a way to **consume** this data through a chatbot!
 
-For the infrastructure, we will have the following OCI Services present:
+![chat with model - patient related 2](./img/chat_patient_2.png)
 
-- **OCI Redis** for caching user-agent interactions (so we can give some context to the model as well)
-- **OCI OpenSearch Cluster** for Index Similarity Search (Index Database) and storing indices with data (Vector Stores will be available in upcoming releases)
+Here's a list of the most prominent features of the service:
+
+- Supports several data on-boarding methods and interaction channels (chat interface or API)
+- Creates contextually relevant answers by searching your knowledge base
+- Provides source attribution for every answer
+- Offers hybrid search capabilities (lexical and semantic) for more correct answers
+- Includes content moderation options for input and output to ensure a safe and respectful chat experience
+- Supports multi-turn conversations, where users can ask follow-up questions and receive answers that consider the context of previous questions and answers
+- Can interpret data from two-axis charts and reference tables in a PDF, without needing explicit descriptions of the visual elements
+- All the hyperlinks present in the PDF documents are extracted and displayed as hyperlinks in the chat response.
+
+For the infrastructure, we have the following OCI Services present:
+
+- **OCI Object Storage** files where you can have up to 1,000 text and PDF files of 100 MB each. And you can request an increase through a limit request. (Fully managed)
+- **Oracle Autonomous Database 23AI** for vector search, as an alternative to using OCI Object Storage (Partially managed, see [here](https://docs.public.oneportal.content.oci.oraclecloud.com/en-us/iaas/Content/generative-ai-agents/oracle-db-guidelines.htm) for more information)
+- **OCI Search with OpenSearch** for Index Similarity Search (Index Database) and storing indices with data (Requires you to chunk, index and vector-embed the data, a bit more complex)
 - **OCI Compute** for connecting to the OpenSearch cluster securely (through OCI private subnet routing)
 - **OCI Generative AI Agents** for communicating and interacting with the data in our cluster
 
-Oracle Cloud Infrastructure Generative AI Agents (Beta) is a fully managed service that combines the power of large language models with an intelligent retrieval system to create contextually relevant answers by searching your knowledge base, making your AI applications smart and efficient.
+In this specific solution, we will use Object Storage as our storage mechanism, as it's the simplest mechanism of the three available (you don't need to do any additional data processing to *consume* the data, unlike with OpenSearch and Autonomous.) although you can always swap into Autonomous 23AI or OCI Search with OpenSearch, provided you setup these data sources correctly. (More info on the docs section)
 
-To use this service, index your data in OCI Search with OpenSearch and set up a cluster in OCI Cache with Redis for the cached user prompts and responses. Then you create an agent and attach your data source. Finally, you test your agent and allow it to generate insights and answer questions. We will see how to do all these steps in this application pattern.
+OCI Generative AI Agents is a fully managed service that combines the power of large language models (LLMs) with an intelligent retrieval system to create contextually relevant answers by searching your knowledge base, making your AI applications smart and efficient.
+
+To use this service, we'll follow these four steps:
+
+1. Create a knowledge base
+2. Add your data
+3. Create an agent
+4. Set up endpoints for user interaction
+5. Start chatting
+
+OCI Generative AI Agents takes care of the rest, providing relevant answers to you and your customers' questions, and tracks the conversation context to enable more informed and helpful responses.
 
 ### Use Cases
 
 Use the OCI Generative AI Agents service for the following types of use cases:
 
-- Chatbot for FAQs: Index FAQ and documentation so that users can easily access relevant topics and find answers to their questions through a chatbot or through the current documentation.
-- Chatbot for policies: Index policy documents, such as human resources, insurance, or finance documents. When users ask specific questions about these policies, they can get answers relevant answers from those documents through a chatbot interface.
+- Customer Support: In the customer service industry, RAG agents can retrieve information from a company’s knowledge base to provide correct and contextually relevant answers to customer inquiries, reducing response times and improving customer satisfaction.
+- Legal Research: Legal professionals can use RAG agents to quickly find precedents and relevant case law from vast legal databases, streamlining the research process and ensuring thorough consideration of relevant legal texts.
+- Healthcare and Medical Guidance: In healthcare, RAG agents can help doctors and medical staff by providing diagnostic support, retrieving medical literature, treatment protocols, and patient history to suggest potential diagnoses and treatments.
+- Financial Analysis: In finance, RAG agents can analyze large volumes of financial data, reports, and news to provide analysis and recommendations for traders and analysts, helping them make informed investment decisions.
+- Educational Tutoring: RAG agents can function as personal tutors, providing students with explanations, resources, and answers to questions by accessing educational content and tailoring explanations to the student’s current level of understanding.
+- Content Creation: In media and content creation, RAG agents can help writers and journalists by pulling information on specific topics, suggesting content ideas, and even drafting sections of articles based on the latest data and trends.
+- Technical Support and Troubleshooting: RAG agents can guide users through technical troubleshooting processes by accessing and synthesizing technical manuals and support forums to offer step-by-step help.
+- Supply Chain Management: In supply chain and logistics, RAG agents can provide insights by retrieving and synthesizing information on inventory levels, supplier data, and logistic metrics to optimize operations and predict potential disruptions.
+- Real Estate Market Analysis: RAG agents can help real estate professionals by aggregating and analyzing data from several sources, including market trends, property listings, and regulatory changes, to provide comprehensive market analyses.
+- Travel Planning and Help: In the travel industry, RAG agents can serve as interactive travel guides, pulling information on destinations, weather, local attractions, and regulations to provide personalized travel advice and itineraries.
 
 ### Available Regions in OCI with the Generative AI Agents Service
 
@@ -37,178 +69,173 @@ Oracle hosts its OCI services in regions and availability domains. A region is a
 
 ## 0. Prerequisites and setup
 
+### Prerequisites
+
 - Oracle Cloud Infrastructure (OCI) Account with available credits to spend
 - [Appropriate policies for the GenAI Agents Service](https://docs.oracle.com/en-us/iaas/Content/generative-ai-agents/iam-policies.htm#policies) set up properly within your tenancy
-- [Oracle Cloud Infrastructure Documentation - Generative AI Agents](https://docs.oracle.com/en-us/iaas/Content/generative-ai-agents/overview.htm#overview)
-- [Oracle Cloud Infrastructure (OCI) Generative AI - Getting Started](https://docs.oracle.com/en-us/iaas/Content/generative-ai-agents/getting-started.htm#get-started)
-- [Oracle Cloud Infrastructure (OCI) Generative AI - API](https://docs.oracle.com/en-us/iaas/api/#/en/generative-ai-agents/20240331/)
+- [Oracle Cloud Infrastructure Documentation - Generative AI Agents](https://docs.public.oneportal.content.oci.oraclecloud.com/en-us/iaas/Content/generative-ai-agents/home.htm)
 - [Python 3.10](https://www.python.org/downloads/release/python-3100/)
 - [Conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html)
 - [OCI SDK](https://docs.oracle.com/en-us/iaas/Content/API/Concepts/sdkconfig.htm)
-- You must have the Chicago region in your tenancy. Generative AI Agents is only available in Chicago.
+- You must be subscribed to the Chicago region in your tenancy. Generative AI Agents is only available in Chicago at this moment.
 - You must have an Identity Domain before you create an agent. [Follow the steps here](https://docs.oracle.com/en-us/iaas/Content/generative-ai-agents/getting-started.htm#prereq-domain) to create an Identity Domain within your OCI Account.
-- Since this service is in beta at the moment (not for long), it is a Limited Availability service that requires explicit whitelisting for tenancy to have access to the service.
 
-If you haven't already, [follow these instructions](https://docs.oracle.com/en-us/iaas/Content/Identity/domains/to-create-new-identity-domain.htm) to create a sub-identity domain within your OCI tenancy. This is done for authentication purposes, so no user outside the identity domain can access or use our GenAI agent without permission.
+### Docs
 
-Then, [configure client access](https://docs.oracle.com/iaas/Content/Identity/defaultsettings/set-access-signing-certificate.htm) so users can use the signing certificate from IAM without connecting to the identity domain itself.
+- [OCI Object Storage Guidelines in Generative AI Agents](https://docs.public.oneportal.content.oci.oraclecloud.com/en-us/iaas/Content/generative-ai-agents/data-requirements.htm#data-requirements)
+- [OCI Search with OpenSearch Guidelines for Generative AI Agents](https://docs.public.oneportal.content.oci.oraclecloud.com/en-us/iaas/Content/generative-ai-agents/opensearch-guidelines.htm#opensearch-guide)
+- [Oracle Database Guidelines for Generative AI Agents](https://docs.public.oneportal.content.oci.oraclecloud.com/en-us/iaas/Content/generative-ai-agents/oracle-db-guidelines.htm)
+- [Oracle Cloud Infrastructure (OCI) Generative AI - Getting Started](https://docs.oracle.com/en-us/iaas/Content/generative-ai-agents/getting-started.htm#get-started)
+- [Oracle Cloud Infrastructure (OCI) Generative AI - API](https://docs.oracle.com/en-us/iaas/api/#/en/generative-ai-agents/20240331/)
+- [OCI GenAI Agents - Concepts](https://docs.public.oneportal.content.oci.oraclecloud.com/en-us/iaas/Content/generative-ai-agents/concepts.htm#concepts)
+- [Search and Visualize Data using Oracle Cloud Infrastructure Search with OpenSearch](https://docs.oracle.com/en/learn/oci-opensearch/index.html)
 
-Instead of doing the whole rest of the infrastructure deployment manually (which includes Cache with Redis and OCI Search with OpenSearch) deploy both things with the following [Terraform stack](https://docs.oracle.com/en-us/iaas/Content/generative-ai-agents/create-stack.htm#create-stack):
+### Setup
 
-1. Sign up for the [Beta program](https://apexadb.oracle.com/ords/f?p=108:501:508002131060566::::P501_SELF_NOMINATION:Self-Nomination) and download SDK.
-2. In the navigation bar of the Console, choose a region that hosts Generative AI Agents, for example, US Midwest (Chicago). If you don't know which region to choose, see [Regions with Generative AI Agents](https://docs.oracle.com/en-us/iaas/Content/generative-ai-agents/overview.htm#regions).
-3. Open the navigation menu and click Developer Services. Under Resource Manager, click Stacks.
-4. Choose a compartment that you have permission to work in.
-5. Click Create stack.
-6. For the origin of the Terraform configuration, click My Configuration.
-7. Under Stack Configuration, click .Zip file and then browse to or drop the prerequisite zip file from step 1 into the provided area.
-8. Keep Custom providers unselected.
-9. (Optional) Give the stack a name and description.
-10. Choose Terraform version 1.2.x.
-11. Click Next.
-12. For openid_url, enter [your identity domain URL](https://docs.oracle.com/en-us/iaas/Content/generative-ai-agents/getting-started.htm#prereq-domain). Example URL: `https://idcs-xxxxxxx.identity.oraclecloud.com`.
-13. Keep the rest of the defaults and click Next.
-14. Click Run apply.
-15. Click Create.
+1. If you don't have access in your tenancy to the service, sign up for the [Beta program](https://apexadb.oracle.com/ords/f?p=108:501:508002131060566::::P501_SELF_NOMINATION:Self-Nomination) and download the Source Development Kit after you've been approved.
+2. In the navigation bar of the Console, choose a region that hosts Generative AI Agents - for example, US Midwest (Chicago). If you don't know which region to choose, see [Regions with Generative AI Agents](https://docs.oracle.com/en-us/iaas/Content/generative-ai-agents/overview.htm#regions).
 
-## 1. Create/Use data
+Finally, if you want to use the GenAI Agents service with **Object Storage** buckets, create a bucket where you'll store your files:
 
-We will generate some data points for our use case: we want to have **healthcare patient records** with some information from their previous visits. This is information we will give our LLM access to, through our Generative AI Agent, and ask the Agent questions about our patient records - this shows that even if the LLM hasn't trained for solving a specific type of prompt or query, RAG can facilitate this data *instantaneously* to the agent.
+![create bucket](./img/create_bucket.png)
 
-To generate data, we will go into our Conda environment and install Python dependencies to produce this data:
+Some considerations for which files are allowed to be used as data in the bucket:
 
-```bash
-pip install -r requirements.txt
-```
+- Supported File Types: Only **PDF** and **txt** files are supported.
+- File Size Limit: Each file must be no larger than **100 MB**.
+- PDF Contents: PDF files can include images, charts, and reference tables but these must not exceed **8 MB**.
+- Chart Preparation: No special preparation is needed for charts, as long as they're **two-dimensional** with **labeled axes**. The model can answer questions about the charts without explicit explanations.
+- Table Preparation: Use reference tables with several rows and columns. For example, the agent can read the table [on this website](https://docs.public.oneportal.content.oci.oraclecloud.com/en-us/iaas/Content/generative-ai-agents/limits.htm#limits).
+- URLs: All the hyperlinks present in the PDF documents are extracted and displayed as hyperlinks in the chat response.
 
-After, we can run `data_generator.py`:
+## 1. Create knowledge base & data source
 
-```bash
-cd scripts/
-python data_generator.py
-```
+![step 1](./img/step_1.png)
 
-The console will ask for how many synthetic users' data you want. For testing purposes, this can be any small value that will let us test; for your own use case in practice, your only job is to select which data will go into the index store (vector store in the upcoming release) database, and in which form (JSON, structured data, raw text... and their properties (if any)).
+On the Knowledge Bases list page, click *Create knowledge base*.
+Enter the following values:
+  - **Name**: A name that starts with a letter or underscore, followed by letters, numbers, hyphens, or underscores. The length can be from 1 to 255 characters.
+  - **Compartment**: The compartment that you want to store the knowledge base in
+  - **Description**: An optional description
 
-Finally, we need to run `data_converter.py` to convert the data source into expected OCI OpenSearch format. From the docs, [this is the expected format](https://opensearch.org/docs/latest/im-plugin/) for a JSON Object being inserted in OpenSearch:
+Select one of the following options for the data store type.
 
-```json
-{ "index": { "_index": "<index>", "_id": "<id>" } }
-{ "A JSON": "document" }
-```
+  - Object Storage (recommended)
+  - OCI OpenSearch: you must have documents chunked to files with less than 512 tokens each, ingested and indexed those documents in OpenSearch before you continue. See [OCI Search with OpenSearch Guidelines for Generative AI Agents](https://docs.public.oneportal.content.oci.oraclecloud.com/en-us/iaas/Content/generative-ai-agents/opensearch-guidelines.htm#opensearch-guide) for more information.
+  - Oracle AI Vector Search: this option is to ask about data already present in Oracle Database 23ai. See [Oracle Database Guidelines for Generative AI Agents](https://docs.public.oneportal.content.oci.oraclecloud.com/en-us/iaas/Content/generative-ai-agents/oracle-db-guidelines.htm) for the required setup.
 
-For that, we just have to execute the following script, making sure that there's a file called `data/generated_data.json` in your `data/` directory:
+### (Recommended) (Option 1) Object Storage Knowledge Base
 
-```bash
-python data_converter.py
-```
+If you selected Object Storage, perform the following actions:
 
-This will generate `data/opensearch_data.json`, in the proper format for OCI OpenSearch. Now that we have our data properly-formatted, we can create these data sources.
+- Select **Enable hybrid search** to combine lexical and semantic search. Without hybrid search, you get lexical search only.
+- Select Specify data source and enter a name and optional description for the data source, if you haven't created one before.
+- Select the bucket that contains the data for the knowledge store. Change the compartment if the bucket is in another compartment.
+- After the contents of the bucket are listed, perform one of the following actions:
+  - Select all in bucket
+  - Select the files and folders to include.
+- Click Create.
+- (Optional) Select *Automatically start ingestion job* for above data sources. If you don't select this option, you must ingest the data later for your agent to use it. 
 
-Now that we have our synthetic data ready, we will be able to create a data source in OpenSearch to query against this data.
+![knowledge base on object storage](./img/knowledge_base.png)
 
-We need to connect to the VM in the same private subnet as our deployed OpenSearch and Redis cluster; through this VM, we will push the generated data into the OpenSearch cluster:
+![data source - new](./img/data_source_new.png)
 
-## 2. Upload data to OpenSearch cluster
+> **Note**: you can only have one data source per knowledge base. If you're going to reuse your knowledge base (uploading more documents to your bucket), you'll need to create an ingestion job manually within the knowledge base, to update the model's knowledge:
 
-We SSH to the VM instance. If you don't remember your creation details, you can go to [your OCI Stacks](https://cloud.oracle.com/resourcemanager/stacks?region=us-chicago-1), click on your Stack, and view the created resources (it will include the instance's IP address and the SSH private key you used upon stack deployment):
+![ingestion job](./img/ingestion_job.png)
 
-![Stack data output](./img/extra_info.PNG)
+Then, after creating an ingestion job:
 
-```bash
-# if you don't have FTP for file transfer, first transfer the file to your VM instance
-scp -i <private key file> ./iaas.json opc@<instance’s public ip address>:~/
+- Review the status logs to confirm that all updated files were successfully ingested.
+- If the ingestion job fails (for example, because of a file being too large), address the issue and restart the job.
 
-# then, now that we have the file, SSH into the server
-ssh -i <private key file> opc@<instance’s public ip address>
-```
+> **Note**: When you restart a previously run ingestion job, the pipeline detects files that were successfully ingested earlier and skip them; while only ingesting files that failed previously and have since been updated.
 
-We create the search index by running the following command:
+### (Option 2) OCI Search with OpenSearch Knowledge Base
 
-```bash
-curl -XPUT https://<OPENSEARCH PRIVATE IP ADDRESS>:9200/<NAME OF YOUR ENDPOINT> -u <OPENSEARCH_USER>:<OPENSEARCH_PW> --insecure.
-```
+Enter the following information:
 
-For example, something like this:
+- OpenSearch cluster name
+- OpenSearch index information:
+  - **Index** Name: the name of the index to look for.
+  - **Body** key: the field that contains the vector.
+  - Embed body key (Optional)
+  - URL key (Optional)
+  - Title key (Optional)
+- For **Secret details** select one of the following options:
+  - *Basic* auth secret: For this option, select the Vault secret for OCI Search with OpenSearch.
+  - *IDCS* secret: For this option enter the following information for the IDCS confidential application that you want to use for the agent:
+    - **Identity domain** application name - Change the compartment if the identity domain is in another compartment.
+    - **Client ID** for the OpenSearch cluster's IDCS client application.
+    - **Client secret** vault that contains the client secret - Change the compartment if the secret is in another compartment.
+    - **Scope URL** that's the API endpoint for the identity domain's resource server application and includes the agent scope. For example, for genaiagent scope, the URL is `https://*.agent.aiservice.us-chicago-1.oci.oraclecloud.com/genaiagent`.
 
-```bash
-curl -XPUT https://10.0.1.0:9200/patients -u myuser:mypassword --insecure
-```
+    Take a look at [this docs page](https://docs.public.oneportal.content.oci.oraclecloud.com/en-us/iaas/Content/search-opensearch/Tasks/get-opensearch-cluster.htm) to learn about OpenSearch clusters and be able to get the cluster's details.
 
-Then, we shall load data into this new index:
+![knowledge base with opensearch](./img/knowledge_base_opensearch.png)
 
-```bash
-curl -H 'Content-Type: application/x-ndjson' -XPOST https://<OPENSEARCH PRIVATE IP ADDRESS>:9200/patients/_bulk?pretty --data-binary @opensearch_data.json -u user:password -–insecure
-```
+### (Option 3) Autonomous Database 23AI Knowledge Base
 
-Verify if the data was loaded correctly by running the following command:
+If you selected **Oracle AI Vector Search**, you'll need to have a 23AI Autonomous Database instance created. If you haven't create one now:
 
-```bash
-curl -XGET https://<OPENSEARCH PRIVATE IP ADDRESS>:9200/patients/_count?pretty -u 
-osmaster:Osmaster@123 -–insecure
-```
+![db creation - part 1](./img/database_creation_1.png)
 
-You should an output similar to this one, if everything was done properly:
+![db creation - part 2](./img/database_creation_2.png)
 
-```json
-{
-  "count" : 10,
-  "_shards" : {
-    "total" : 1,
-    "successful" : 1,
-    "skipped" : 0,
-    "failed" : 0
-  }
-}
-```
+![db creation - end](./img/database_creation_3.png)
 
-## 3. Create endpoint & data source
+Then, create a **connection** to this database. You can see your connections under the [`Database Tools`](https://cloud.oracle.com/dbtools/connections) menu:
 
-We will create an endpoint using OCI's Console. Our data will be hosted in this private endpoint, and we'll be able to link this private endpoint with an agent in the next step, in order to interact with our data:
+![connection creation](./img/create_connection.png)
 
-![Creating Endpoint](./img/endpoint.PNG)
+![connection creation - end](./img/create_connection_end.png)
 
-> **Note**: make sure you select the VCN you created in step 0, and select the `private` subnet (not the public one).
+Now that we have a connection created, select the Database tool connection and then click **Test connection** to confirm a successful connection to the database. If successful, the database name and version is displayed. Then, enter the Vector search function for the database tool connection.
 
-Now, we can create the corresponding Data Source. Make sure you reference the index you created on step 2 (in our case called `patients`):
+> **Note**: see the [Oracle Database Guidelines for Generative AI Agents](https://docs.public.oneportal.content.oci.oraclecloud.com/en-us/iaas/Content/generative-ai-agents/oracle-db-guidelines.htm) to help you enter the values for this step.
 
-![Creating Data Source](./img/data_source_1.PNG)
+## 2. Create agent
 
-![Creating Data Source - 2](./img/data_source_2.PNG)
+Now, we need to create the agent, which will associate with one of our knowlegde bases:
 
-> **Note**: 'OpenSearch Private IP' can be obtained as I do in the picture below:
+![new agent](./img/new_agent.png)
 
-![Obtaining OpenSearch private ip](./img/private_ip.PNG)
+Select the *Automatically create an endpoint for this agent* option to avoid later having to manually setup the endpoint.
 
-## 4. Create agent to point to data source and identity domain
+> **Note**. You can customize the welcome message when interacting with the user through chat.
 
-Considering we created our Identity Domain in step 0, we will now associate this Identity Domain to our Agent, to restrict access to unauthorized users.
+## 3. Start chatting
 
-Let's create the agent and point to this created identity domain:
+Now that our agent is created, we can start talking to it!
 
-![Create Agent](./img/agent.PNG)
-
-Our agent is now ready!
-
-## 5. Talk to your new agent
+## 4. Talk to your new agent
 
 We can access our agent and start talking to it - and query about our data:
 
-![Launch agent](./img/launch_agent.PNG)
+![chat with model - patient related 1](./img/chat_patient_1.png)
 
-We observe that, when we make requests about our health patients, we receive accurate responses from the Agent, meaning that we've successfully integrated our data source with the Generative AI Agent!
+From our patient data:
 
-![End Result](./img/result_end.PNG)
+![reference 1](./img/reference_1.png)
+
+Apart from patient data in the hospital, I can also ask questions about best practices, policies, and intricacies of legal documents. Anyone with doubts can come chat with the agent and leave with accurate and verifiable responses:
+
+![chat with model - patient related 2](./img/chat_patient_2.png)
+
+From the original documents, we see the response is accurate:
+
+![reference 2](./img/reference_2.png)
+
+We observe that, when we ask the model anything present in our documents or data in Object Storage, it's able to gather the necessary bits and pieces from one (or multiple) files and return a well-formed response, taking into consideration all our data. In the example above, I had uploaded a 75-page scientific paper called *"Language Models are Few-Shot Learners"*, and ask complex questions:
+
+![chat with model](./img/chat_with_model.png)
+
+But this can be applied to any domain: if you have your own data, you'll receive accurate responses from the agent (as well as some references so you can check the veracity of the model's responses) meaning that we've successfully integrated our data source with the Generative AI Agent!
 
 ## Demo
 
 [Watch the demo here](https://www.youtube.com/watch?v=JqF6Bc9am4s&list=PLPIzp-E1msraY9To-BB-vVzPsK08s4tQD&index=15)
-
-## Tutorial
-
-TODO
-
-[This is a tutorial](https://docs.oracle.com/en/learn/oci-opensearch/index.html#introduction) about OCI OpenSearch if you're interested in learning more about vectorization, indexation, connecting to the cluster, ingesting data, searching for data and visualizing it.
 
 ## Physical Architecture
 
