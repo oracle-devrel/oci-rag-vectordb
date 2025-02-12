@@ -10,9 +10,7 @@ With RAG, your LLM can access the latest knowledge —like the results of this y
 
 Thanks to the OCI GenAI Agents Service, harnessing the power of Oracle Autonomous Database 23AI's advanced vector search capabilities is easier than ever. This service enables you to efficiently process and store documents, allowing users to **interact** with this wealth of information through an intuitive chatbot experience!
 
-![chat with model - autonomous 1](./img/chat_autonomous_1.png)
-
-![chat with model - autonomous 2](./img/chat_autonomous_2.png)
+<img src="./img/chat_autonomous_1.png" width="90%" alt="chat with model - autonomous 1">
 
 Here's a list of the most prominent features of the service:
 
@@ -95,64 +93,63 @@ First, we will need to ensure that we have access to the service. For this, let'
 
 1. Go to your dynamic groups and create a new dynamic group:
 
-  ![create dynamic group](./img/dynamic_group_create.png)
+    <img src="./img/dynamic_group_create.png" width="90%" alt="create dynamic group">
 
-  Create a dynamic group with the following name and the following matching rule:
+    Create a dynamic group with the following name and the following matching rule:
 
-  ![dynamic group name](./img/dg_details.png)
+    <img src="./img/dg_details.png" width="90%" alt="dynamic group name">
 
-  This will ensure all Generative AI Agent resources are allowed to be accessed by this dynamic group.
-
+    This will ensure all Generative AI Agent resources are allowed to be accessed by this dynamic group.
 
 2. Add the following policies to the dynamic group:
 
-  ![policy details](./img/policy_details.png)
+    <img src="./img/policy_details.png" width="90%" alt="policy details">
 
-  Replace `genaiagentdg` with the name of your dynamic group, and `<genai-agent-administrators>` with the name of the group which you are part of:
+    Replace `genaiagentdg` with the name of your dynamic group, and `<genai-agent-administrators>` with the name of the group which you are part of:
 
-  ```bash
-  allow dynamic-group genaiagentdg to manage database-tools-family in tenancy
-  allow dynamic-group genaiagentdg to manage secret-bundle in tenancy
-  allow group <genai-agent-administrators> to manage object-family in tenancy
-  allow group <genai-agent-administrators> to manage genai-agent-family in tenancy
-  # if you aren't in the Default domain, you'll need to prepend the domain name to the group name like this:
-  # allow dynamic-group OracleIdentityCloudService/genaiagentdg to manage secret-bundle in tenancy
-  # also for the group policies:
-  # allow group OracleIdentityCloudService/<genai-agent-administrators> to manage genai-agent-family in tenancy
-  ```
+    ```bash
+    allow dynamic-group genaiagentdg to manage database-tools-family in tenancy
+    allow dynamic-group genaiagentdg to manage secret-bundle in tenancy
+    allow group <genai-agent-administrators> to manage object-family in tenancy
+    allow group <genai-agent-administrators> to manage genai-agent-family in tenancy
+    # if you aren't in the Default domain, you'll need to prepend the domain name to the group name like this:
+    # allow dynamic-group OracleIdentityCloudService/genaiagentdg to manage secret-bundle in tenancy
+    # also for the group policies:
+    # allow group OracleIdentityCloudService/<genai-agent-administrators> to manage genai-agent-family in tenancy
+    ```
 
-  The four permissions are: `object-family`, `genai-agent-family`, `secret-bundle`, and `database-tools-family`. Ensure the user's that will make the requests is a member of the mentioned group and has the mentioned permissions (preferrably in the whole tenancy, although if you want to configure it per compartment or be more careful with your permissions, you can do so by following [this guide](https://docs.oracle.com/en-us/iaas/Content/generative-ai-agents/iam-policies.htm)).
+    The four permissions are: `object-family`, `genai-agent-family`, `secret-bundle`, and `database-tools-family`. Ensure the user's that will make the requests is a member of the mentioned group and has the mentioned permissions (preferrably in the whole tenancy, although if you want to configure it per compartment or be more careful with your permissions, you can do so by following [this guide](https://docs.oracle.com/en-us/iaas/Content/generative-ai-agents/iam-policies.htm)).
 
-  > **Note**: if you are working on an identity provider other than Oracle Identity Cloud Service to authenticate to your OCI tenancy, you'll need to *prepend* the name of your identity provider in the policies and dynamic group definitions. For example, if you're using 'OracleIdentityCloudService', your policy shall be set like 'OracleIdentityCloudService/<genai-agent-administrators>' instead of '<genai-agent-administrators>'.
+    > **Note**: if you are working on an identity provider other than Oracle Identity Cloud Service to authenticate to your OCI tenancy, you'll need to *prepend* the name of your identity provider in the policies and dynamic group definitions. For example, if you're using 'OracleIdentityCloudService', your policy shall be set like 'OracleIdentityCloudService/<genai-agent-administrators>' instead of '<genai-agent-administrators>'.
 
 #### Task 2: Create VCN and Private Subnet
 
 We need to create a VCN and private subnet to host our Autonomous database securely in a private network. Then, we will use a Database Connection to act as a bastion. This will help our database be more secure and isolated from the public internet.
 
 1. Create Virtual Cloud Network (VCN):
-  - Navigate to Networking -> Virtual cloud networks 
-  - Click "Create VCN"
-  - Provide IPv4 CIDR Block: `10.0.0.0/16`
+    - Navigate to Networking -> Virtual cloud networks 
+    - Click "Create VCN"
+    - Provide IPv4 CIDR Block: `10.0.0.0/16`
 
-![create vcn](./img/create_vcn.png)
+    <img src="./img/create_vcn.png" width="90%" alt="create vcn">
 
 2. Create Private Subnet:
-   - In the newly created VCN, click "Create Subnet"
-   - Configure:
-     - IPv4 CIDR Block: `10.0.1.0/24`
-     - Select "Private Subnet"
-     - Leave other settings as default
+    - In the newly created VCN, click "Create Subnet"
+    - Configure:
+      - IPv4 CIDR Block: `10.0.1.0/24`
+      - Select "Private Subnet"
+      - Leave other settings as default
 
-![create subnet](./img/create_subnet.png)
+    <img src="./img/create_subnet.png" width="90%" alt="create subnet">
 
 3. Configure Security List:
-   - Go to the new subnet
-   - Navigate to Security List
-   - Add ingress rules including:
-     - Database access ports 1521-1522
-     - Other required ingress rules
+    - Go to the new subnet
+    - Navigate to Security List
+    - Add ingress rules including:
+      - Database access to ports `1521-1522`
+      - Access to ports 80 and 53
 
-![ingress rules](./img/vcn_creation.png)
+    <img src="./img/vcn_creation.png" width="90%" alt="ingress rules">
 
 #### Task 3: Create Vault for Database Secrets
 
@@ -161,7 +158,7 @@ We need to create a VCN and private subnet to host our Autonomous database secur
    - Provide Name
    - Click Create Vault
 
-![vault creation](./img/vault_creation.png)
+    <img src="./img/vault_creation.png" width="90%" alt="vault creation">
 
 2. Create Encryption Key:
    - In the new vault, click "Create Key"
@@ -171,15 +168,15 @@ We need to create a VCN and private subnet to host our Autonomous database secur
      - Leave other settings as default
    - Click Create Key
 
-![key creation](./img/key_creation.png)
+    <img src="./img/key_creation.png" width="90%" alt="key creation">
 
-> **Note**: set your protection mode to `HSM`.
+    > **Note**: set your protection mode to `HSM`.
 
 #### Task 4: Create Autonomous Database
 
 Now, we need to create the Autonomous Database that will be used by the Generative AI Agents service to store and retrieve data in the form of *embeddings*.
 
-![databases_menu](./img/databases_menu.png)
+<img src="./img/databases_menu.png" width="90%" alt="databases menu">
 
 1. Create Database:
    - Navigate to Oracle Databases -> Autonomous Databases
@@ -197,24 +194,25 @@ Now, we need to create the Autonomous Database that will be used by the Generati
      - Provide valid email ID
    - Click Create Autonomous Database
 
-![database_config](./img/database_config.png)
+    <img src="./img/database_config.png" alt="database config">
 
 #### Task 5: Create Database Tools Connection
 
 Now, we'll create a database connection to act as a bastion to our database. This will help us connect to the database securely and isolate it from the public internet. Additionally, this connection will be used by the Generative AI Agents service to retrieve data from the database.
 
 Go to the Database Tools Connections menu:
-![connections_menu](./img/connections_menu.png)
+
+<img src="./img/connections_menu.png" width="90%" alt="connections menu">
 
 Before, let's make sure we have the private IP address and connection strings of our Autonomous Database. Go to your Autonomous Database details page:
 
-![database_details](./img/database_details.png)
+<img src="./img/database_details.png" width="90%" alt="database details">
 
 Now, we can get the private IP address and connection strings from the details page:
 
-![private_db_ip](./img/private_db_ip.png)
+<img src="./img/private_db_ip.png" width="90%" alt="private db ip">
 
-![connection_strings](./img/connection_strings.png)
+<img src="./img/connection_strings.png" width="90%" alt="connection strings">
 
 Your connection string should look something like this:
 
@@ -255,11 +253,11 @@ Finally, let's validate the connection we just created:
   - Go to new Database Tools connection
   - Click `Validate` to verify setup
 
-![validate connection](./img/validate_connection.png)
+<img src="./img/validate_connection.png" width="90%" alt="validate connection">
 
 If everything is correct, you should see the following message:
 
-![validate connection - success](./img/validate_result.png)
+<img src="./img/validate_result.png" width="90%" alt="validate connection - success">
 
 As a recap, we have created the following resources:
 
@@ -278,72 +276,72 @@ To work with the Oracle Generative AI Agents service, we need to set up the Auto
 
 To launch this SQL worksheet, go to the Autonomous Database details page and click on the `SQL worksheet` button:
 
-![sql_worksheet](./img/sql_worksheet.png)
+<img src="./img/sql_worksheet.png" width="90%" alt="sql worksheet">
 
 Now, we can proceed to run some SQL code:
 
 1. First, we'll run an Access Control List rule to allow the database user to access the embedding model, amongst other things:
 
-```sql
--- ACL to let user go out everywhere (host =>'*'), it's not required for Oracle Base Database.
-begin
- -- Allow all hosts for HTTP/HTTP_PROXY
- dbms_network_acl_admin.append_host_ace(
-     host =>'*',
-     lower_port => 443,
-     upper_port => 443,
-     ace => xs$ace_type(
-     privilege_list => xs$name_list('http', 'http_proxy'),
-     principal_name => upper('admin'),
-     principal_type => xs_acl.ptype_db)
- );
- end;
- /
-```
+    ```sql
+    -- ACL to let user go out everywhere (host =>'*'), it's not required for Oracle Base Database.
+    begin
+    -- Allow all hosts for HTTP/HTTP_PROXY
+    dbms_network_acl_admin.append_host_ace(
+        host =>'*',
+        lower_port => 443,
+        upper_port => 443,
+        ace => xs$ace_type(
+        privilege_list => xs$name_list('http', 'http_proxy'),
+        principal_name => upper('admin'),
+        principal_type => xs_acl.ptype_db)
+    );
+    end;
+    /
+    ```
 
 2. We'll now create some credentials to access the OCI GenAI Agents service. For this, we'll need to add a new API key to our OCI user, and then use this API key with the `DBMS_CLOUD` plugin to authenticate. For this, go to your user's OCI page and click on the `API Keys` tab. Once generated (or uploaded), save it in your local computer as you will need to use the fingerprint and private keys in the following steps:
 
-![generate_api_key](./img/generate_api_key.png)
+    <img src="./img/generate_api_key.png" width="90%" alt="generate api key">
 
 3. Let's use this API key and the `DBMS_CLOUD` plugin to authenticate. You will need your user, compartment and tenancy OCIDs, as well as your private key and fingerprint. In the following SQL code, replace the strings with your own values, and run the code:
 
-```sql
--- DBMS_CLOUD credentials
--- Some examples are based on DBMS_CLOUD, that is included in Autonomous DB.
--- If you need to install it (for example on Base Database) you can refer to: https://support.oracle.com/knowledge/Oracle%20Cloud/2748362_1.html
-begin
-     DBMS_CLOUD.CREATE_CREDENTIAL (
-         credential_name => 'OCI_CRED_BUCKET',
-         user_ocid       => 'ocid1.user.oc1..aaaaaaaaa2...',
-         tenancy_ocid    => 'ocid1.tenancy.oc1..aaaaaaaa...',
-         private_key     => 'MIIEvgI...RpV',
-         fingerprint     => '0f:df...1d:88:d6'
-     );
- end;
- /
-```
+    ```sql
+    -- DBMS_CLOUD credentials
+    -- Some examples are based on DBMS_CLOUD, that is included in Autonomous DB.
+    -- If you need to install it (for example on Base Database) you can refer to: https://support.oracle.com/knowledge/Oracle%20Cloud/2748362_1.html
+    begin
+        DBMS_CLOUD.CREATE_CREDENTIAL (
+            credential_name => 'OCI_CRED_BUCKET',
+            user_ocid       => 'ocid1.user.oc1..aaaaaaaaa2...',
+            tenancy_ocid    => 'ocid1.tenancy.oc1..aaaaaaaa...',
+            private_key     => 'MIIEvgI...RpV',
+            fingerprint     => '0f:df...1d:88:d6'
+        );
+    end;
+    /
+    ```
 
-> **Note**: the private key shall not begin with `-----BEGIN PRIVATE KEY-----` or `-----END PRIVATE KEY-----`, it shall only have the key's content. You can also retrieve the key's fingerprint from the API key details page.
+    > **Note**: the private key shall not begin with `-----BEGIN PRIVATE KEY-----` or `-----END PRIVATE KEY-----`, it shall only have the key's content. You can also retrieve the key's fingerprint from the API key details page.
 
 4. Let's create credentials for the Generative AI Agents service:
 
-```sql
-declare
-     jo json_object_t;
-begin
-     jo := json_object_t();
-     jo.put('user_ocid','ocid1.user.oc1..aaaaaaaaa2...');
-     jo.put('tenancy_ocid','ocid1.tenancy.oc1..aaaaaaaa...');
-     jo.put('compartment_ocid','ocid1.tenancy.oc1..aaaaaaaa...');
-     jo.put('private_key','MIIEvgI...RpV');
-     jo.put('fingerprint','0f:df...1d:88:d6');
-     dbms_vector.create_credential(
-         credential_name   => 'OCI_CRED',
-         params            => json(jo.to_string)
-     );
- end;
- /
-```
+    ```sql
+    declare
+        jo json_object_t;
+    begin
+        jo := json_object_t();
+        jo.put('user_ocid','ocid1.user.oc1..aaaaaaaaa2...');
+        jo.put('tenancy_ocid','ocid1.tenancy.oc1..aaaaaaaa...');
+        jo.put('compartment_ocid','ocid1.tenancy.oc1..aaaaaaaa...');
+        jo.put('private_key','MIIEvgI...RpV');
+        jo.put('fingerprint','0f:df...1d:88:d6');
+        dbms_vector.create_credential(
+            credential_name   => 'OCI_CRED',
+            params            => json(jo.to_string)
+        );
+    end;
+    /
+    ```
 
 If the setup has been properly executed, you can run this SQL query as a test, to embed the word "hello" with the `cohere.embed-multilingual-v3.0` model:
 
@@ -367,169 +365,169 @@ Now that our setup is done and we can already generate embeddings, we can upload
 
 1. Create an OCI Object Storage bucket:
 
-  ![create bucket](./img/create_bucket.png)
+    <img src="./img/create_bucket.png" width="90%" alt="create bucket">
 
 2. Upload your PDF file to your bucket
 
-  ![uploaded_pdf](./img/uploaded_pdf.png)
+    <img src="./img/uploaded_pdf.png" alt="uploaded pdf">
 
 3. From this PDF, create a Pre-Authenticated Request (PAR) to access the file:
 
-  ![create par](./img/create_par.png)
+    <img src="./img/create_par.png" alt="create par">
 
 4. Copy the PAR URL:
 
-  ![create_par_output](./img/create_par_output.png)
+    <img src="./img/create_par_output.png" alt="create par output">
 
 5. Use the `DBMS_CLOUD.GET_OBJECT` function to embed the file and save the embeddings in the Autonomous Database, in chunks of 75 tokens. For your data, make sure to replace that `https` PAR with your own PAR URL, and execute it:
 
-  ```sql
-  CREATE TABLE ai_extracted_data AS
-  SELECT
-      j.chunk_id,
-      j.chunk_offset,
-      j.chunk_length,
-      j.chunk_data
-  FROM
-      -- divide a blob into chunks (utl_to_chunks):
-      (select * from dbms_vector_chain.utl_to_chunks(
-          dbms_vector_chain.utl_to_text(
-              to_blob(
-                  DBMS_CLOUD.GET_OBJECT('OCI_CRED_BUCKET', 'https://objectstorage.us-chicago-1.oraclecloud.com/p/Aaklz9CEuOdwhdWbV-bLcDTvML4DNlRtTw7z6dMuSMh1gn2toBnmE1airTA-ZhkW/n/axk4z7krhqfx/b/AI_Vector_Search/o/oracle-ai-vector-search-users-guide.pdf')
-              )
-          ), json('{"max":"75", "normalize":"all", "overlap":"15"}')
-      )),
-      JSON_TABLE(column_value, '$'
-          COLUMNS (
-              chunk_id NUMBER PATH '$.chunk_id',
-              chunk_offset NUMBER PATH '$.chunk_offset',
-              chunk_length NUMBER PATH '$.chunk_length',
-              chunk_data CLOB PATH '$.chunk_data'
-          )
-      ) j;
-  ```
+    ```sql
+    CREATE TABLE ai_extracted_data AS
+    SELECT
+        j.chunk_id,
+        j.chunk_offset,
+        j.chunk_length,
+        j.chunk_data
+    FROM
+        -- divide a blob into chunks (utl_to_chunks):
+        (select * from dbms_vector_chain.utl_to_chunks(
+            dbms_vector_chain.utl_to_text(
+                to_blob(
+                    DBMS_CLOUD.GET_OBJECT('OCI_CRED_BUCKET', 'https://objectstorage.us-chicago-1.oraclecloud.com/p/Aaklz9CEuOdwhdWbV-bLcDTvML4DNlRtTw7z6dMuSMh1gn2toBnmE1airTA-ZhkW/n/axk4z7krhqfx/b/AI_Vector_Search/o/oracle-ai-vector-search-users-guide.pdf')
+                )
+            ), json('{"max":"75", "normalize":"all", "overlap":"15"}')
+        )),
+        JSON_TABLE(column_value, '$'
+            COLUMNS (
+                chunk_id NUMBER PATH '$.chunk_id',
+                chunk_offset NUMBER PATH '$.chunk_offset',
+                chunk_length NUMBER PATH '$.chunk_length',
+                chunk_data CLOB PATH '$.chunk_data'
+            )
+        ) j;
+    ```
 
 6. If everything went well, you can check the table's contents: 
 
-  ![table_contents](./img/table_contents.png)
+    <img src="./img/table_contents.png" alt="table contents">
 
-  You can run the command yourself:
+    You can run the command yourself:
 
-  ```sql
-  SELECT * FROM ai_extracted_data;
-  select COUNT(*) from ai_extracted_data
-  ```
+    ```sql
+    SELECT * FROM ai_extracted_data;
+    select COUNT(*) from ai_extracted_data
+    ```
 
 7. Now, remember that, even though we already have some data in this table, it's in cleartext (not in its numerical embeddings form). To generate the embeddings from these cleartext chunks, let's first create the vector table:
 
-  ```sql
-  -- Create vector table from an existing table
-  -- In the following table ai_extracted_data, chunk_id is the record id while chunk_data is the content column.
-  create table ai_extracted_data_vector as (
-      select chunk_id as docid, to_char(chunk_data) as body, dbms_vector.utl_to_embedding(
-          chunk_data,
-          json('{
-              "provider": "OCIGenAI",
-              "credential_name": "OCI_CRED",
-              "url": "https://inference.generativeai.us-chicago-1.oci.oraclecloud.com/20231130/actions/embedText",
-              "model": "cohere.embed-multilingual-v3.0"
-          }')
-      ) as text_vec
-      from ai_extracted_data
-      where chunk_id <= 400
-  )
-  ```
+    ```sql
+    -- Create vector table from an existing table
+    -- In the following table ai_extracted_data, chunk_id is the record id while chunk_data is the content column.
+    create table ai_extracted_data_vector as (
+        select chunk_id as docid, to_char(chunk_data) as body, dbms_vector.utl_to_embedding(
+            chunk_data,
+            json('{
+                "provider": "OCIGenAI",
+                "credential_name": "OCI_CRED",
+                "url": "https://inference.generativeai.us-chicago-1.oci.oraclecloud.com/20231130/actions/embedText",
+                "model": "cohere.embed-multilingual-v3.0"
+            }')
+        ) as text_vec
+        from ai_extracted_data
+        where chunk_id <= 400
+    )
+    ```
 
-  > **Note**: there's a quota limit for running the embedding model. For datasets with more than 400 records, we can repeatedly load the data or write a script to load data in batches.
+    > **Note**: there's a quota limit for running the embedding model. For datasets with more than 400 records, we can repeatedly load the data or write a script to load data in batches.
 
-  > **Note**: if your existing data hasn't been processed into chunks yet, your chunk size might exceed 512, which would prevent embedding generation. If you run into this issue, refer to [Custom Chunking Specifications](https://docs.oracle.com/en-us/iaas/Content/generative-ai-agents/custom-chunking-specifications.htm) to convert content to chunks.
+    > **Note**: if your existing data hasn't been processed into chunks yet, your chunk size might exceed 512, which would prevent embedding generation. If you run into this issue, refer to [Custom Chunking Specifications](https://docs.oracle.com/en-us/iaas/Content/generative-ai-agents/custom-chunking-specifications.htm) to convert content to chunks.
 
 8. If you have more than 400 chunks/records in the table, you can repeat the process for the next batch of data with this script:
 
-  ```sql
-  insert into ai_extracted_data_vector
-  select chunk_id as docid, to_char(chunk_data) as body, dbms_vector.utl_to_embedding(
-      chunk_data,
-      json('{
-          "provider": "OCIGenAI",
-          "credential_name": "OCI_CRED",
-          "url": "https://inference.generativeai.us-chicago-1.oci.oraclecloud.com/20231130/actions/embedText",
-          "model": "cohere.embed-multilingual-v3.0"
-      }')
-      ) as text_vec
-  from ai_extracted_data
-  where chunk_id > 400
-  ```
+    ```sql
+    insert into ai_extracted_data_vector
+    select chunk_id as docid, to_char(chunk_data) as body, dbms_vector.utl_to_embedding(
+        chunk_data,
+        json('{
+            "provider": "OCIGenAI",
+            "credential_name": "OCI_CRED",
+            "url": "https://inference.generativeai.us-chicago-1.oci.oraclecloud.com/20231130/actions/embedText",
+            "model": "cohere.embed-multilingual-v3.0"
+        }')
+        ) as text_vec
+    from ai_extracted_data
+    where chunk_id > 400
+    ```
 
-  If you just have **too many** chunks/records in the table, you can repeat the process for the next batch of data sequentially by editing the SQL above, or through some additional programming logic (automating it). Just know that for now the limit is 400 chunks per data load.
+    > **Note**: If you just have **too many** chunks/records in the table, you can repeat the process for the next batch of data sequentially by editing the SQL above, or through some additional programming logic (automating it). Just know that for now the limit is 400 chunks per data load.
 
 
 9. Finally, create the function that will return `top_k` results when calling the function (by default, 5):
 
-```sql
--- Create function from vector table
--- When returning the results, rename (alias) the record ID as 'DOCID', the content column as 'BODY', and the VECTOR_DISTANCE between text_vec and query_vec as 'SCORE'. These 3 columns are required. If the vector table includes 'URL' and 'Title' columns, rename them (alias) as 'URL' and 'TITLE' respectively.
-create or replace FUNCTION retrieval_func_ai (
-     p_query IN VARCHAR2,
-     top_k IN NUMBER
-) RETURN SYS_REFCURSOR IS
-     v_results SYS_REFCURSOR;
-     query_vec VECTOR;
-BEGIN
-     query_vec := dbms_vector.utl_to_embedding(
-         p_query,
-         json('{
-             "provider": "OCIGenAI",
-             "credential_name": "OCI_CRED",
-             "url": "https://inference.generativeai.us-chicago-1.oci.oraclecloud.com/20231130/actions/embedText",
-             "model": "cohere.embed-multilingual-v3.0"
-         }')
-     );
+    ```sql
+    -- Create function from vector table
+    -- When returning the results, rename (alias) the record ID as 'DOCID', the content column as 'BODY', and the VECTOR_DISTANCE between text_vec and query_vec as 'SCORE'. These 3 columns are required. If the vector table includes 'URL' and 'Title' columns, rename them (alias) as 'URL' and 'TITLE' respectively.
+    create or replace FUNCTION retrieval_func_ai (
+        p_query IN VARCHAR2,
+        top_k IN NUMBER
+    ) RETURN SYS_REFCURSOR IS
+        v_results SYS_REFCURSOR;
+        query_vec VECTOR;
+    BEGIN
+        query_vec := dbms_vector.utl_to_embedding(
+            p_query,
+            json('{
+                "provider": "OCIGenAI",
+                "credential_name": "OCI_CRED",
+                "url": "https://inference.generativeai.us-chicago-1.oci.oraclecloud.com/20231130/actions/embedText",
+                "model": "cohere.embed-multilingual-v3.0"
+            }')
+        );
 
-     OPEN v_results FOR
-         SELECT DOCID, BODY, VECTOR_DISTANCE(text_vec, query_vec) as SCORE
-         FROM ai_extracted_data_vector
-         ORDER BY SCORE
-         FETCH FIRST top_k ROWS ONLY;
+        OPEN v_results FOR
+            SELECT DOCID, BODY, VECTOR_DISTANCE(text_vec, query_vec) as SCORE
+            FROM ai_extracted_data_vector
+            ORDER BY SCORE
+            FETCH FIRST top_k ROWS ONLY;
 
-     RETURN v_results;
- END;
-```
+        RETURN v_results;
+    END;
+    ```
 
 10. You can now run this function to retrieve the top `n` results:
 
-  ```sql
-  -- Run & check the function
-  -- Display the DOCID and SCORE
-  DECLARE
-      v_results SYS_REFCURSOR;
-      v_docid VARCHAR2(100);
-      v_body VARCHAR2(4000);
-      v_score NUMBER;
-      p_query VARCHAR2(100) := 'What is self-instruct?';
-      top_k NUMBER := 10;
-  BEGIN
-      v_results := retrieval_func_ai(p_query, top_k);
+    ```sql
+    -- Run & check the function
+    -- Display the DOCID and SCORE
+    DECLARE
+        v_results SYS_REFCURSOR;
+        v_docid VARCHAR2(100);
+        v_body VARCHAR2(4000);
+        v_score NUMBER;
+        p_query VARCHAR2(100) := 'What is self-instruct?';
+        top_k NUMBER := 10;
+    BEGIN
+        v_results := retrieval_func_ai(p_query, top_k);
 
-      DBMS_OUTPUT.PUT_LINE('DOCID | SCORE');
-      DBMS_OUTPUT.PUT_LINE('--------|------');
+        DBMS_OUTPUT.PUT_LINE('DOCID | SCORE');
+        DBMS_OUTPUT.PUT_LINE('--------|------');
 
-      LOOP
-          FETCH v_results INTO v_docid, v_body, v_score;
-          EXIT WHEN v_results%NOTFOUND;
+        LOOP
+            FETCH v_results INTO v_docid, v_body, v_score;
+            EXIT WHEN v_results%NOTFOUND;
 
-          DBMS_OUTPUT.PUT_LINE(v_docid || ' | ' || v_score);
-      END LOOP;
+            DBMS_OUTPUT.PUT_LINE(v_docid || ' | ' || v_score);
+        END LOOP;
 
-      CLOSE v_results;
-  END;
-  ```
+        CLOSE v_results;
+    END;
+    ```
 
-  You should see something like this, with a ranking of the most relevant chunks (and their IDs), together with the similarity score:
+    You should see something like this, with a ranking of the most relevant chunks (and their IDs), together with the similarity score:
   
-  ![embeddings_result](./img/embeddings_result.png)
+    <img src="./img/embeddings_result.png" alt="embeddings result">
 
-  Even though we were able to communicate with our embeddings directly (and you're perfectly fine if you wanted to create a system like this), we'll use the Generative AI Agents service to create an agent that can answer questions about our data through the OCI Console interface.
+    Even though we were able to communicate with our embeddings directly (and you're perfectly fine if you wanted to create a system like this), we'll use the Generative AI Agents service to create an agent that can answer questions about our data through the OCI Console interface.
 
 
 ## 1. Create a knowledge base
@@ -538,13 +536,13 @@ To associate every step we've done in the setup so far with the Generative AI Ag
 
 1. Go to the Generative AI Agents service and click on the *Knowledge Bases* tab:
 
-  ![knowledge bases](./img/knowledge_bases.png)
+    <img src="./img/knowledge_bases.png" width="90%" alt="knowledge bases">
 
 2. Click on *Create knowledge base* and enter the following information:
 
-  [knowledge base - autonomous](./img/knowledge_base_autonomous.png)
+    <img src="./img/knowledge_base_autonomous.png" alt="knowledge base - autonomous">
 
-  Make sure to select `Oracle AI Vector Search` as the data store type, and the connection that you created in Task 5.
+    Make sure to select `Oracle AI Vector Search` as the data store type, and the connection that you created in Task 5. Also, make sure to select the name of the `Retrieval Function` that you created in Task 9.
 
 > **Note**: after creating a knowledge base, and since the purpose of having used Autonomous Database is to have an updateable, searchable, in-real time vector database, we can now see one of the advantages of using Autonomous over Object Storage: after we upload some more data and vectorize it (can be automated), the knowledge base will be updated in real time, and will not require any additional human intervention, as the knowledge base only needs to know which retrieval function to use, and doesn't care how much data actually exists in the database.
 
@@ -552,15 +550,15 @@ To associate every step we've done in the setup so far with the Generative AI Ag
 
 1. Now, let's create an Agent in a similar fashion:
 
-  ![new agent](./img/agents_autonomous.png)
+    <img src="./img/agents_autonomous.png" alt="new agent">
 
 2. Click on *Create agent* and enter the following information:
 
-  [new_agent_autonomous](./img/new_agent_autonomous.png)
+    <img src="./img/new_agent_autonomous.png" alt="new agent autonomous">
 
-  Make sure to select the knowledge base that you just created. Make sure to select the *Automatically create an endpoint for this agent* option to avoid later having to manually setup the endpoint.
+    Make sure to select the knowledge base that you just created. Make sure to select the *Automatically create an endpoint for this agent* option to avoid later having to manually setup the endpoint.
 
-  > **Note**: you can customize the welcome message when interacting with the user through chat, as well as providing some additional instructions to the RAG agent for it to follow during generations.
+    > **Note**: you can customize the welcome message when interacting with the user through chat, as well as providing some additional instructions to the RAG agent for it to follow during generations.
 
 In a few minutes, your agent will be ready to use!
 
@@ -568,11 +566,11 @@ In a few minutes, your agent will be ready to use!
 
 We can now access our agent's chat and start talking to it - and query about our data:
 
-![chat_autonomous_1](./img/chat_autonomous_1.png)
+<img src="./img/chat_autonomous_1.png" width="90%" alt="chat autonomous 1">
 
 The `traces` system will also retrieve the embeddings used for the responses (and their document IDs in the database), so you can verify the sources that contributed to the generated response by the agent:
 
-![chat_autonomous_2](./img/chat_autonomous_2.png)
+<img src="./img/chat_autonomous_2.png" width="70%" alt="chat autonomous 2">
 
 This can be applied to any domain: if you follow the instructions in this AI solution to process & upload your own data, you'll receive accurate responses from the agent (as well as some references so you can check the veracity of the model's responses).
 
@@ -582,7 +580,7 @@ This can be applied to any domain: if you follow the instructions in this AI sol
 
 ## Physical Architecture
 
-![arch](./img/arch.PNG)
+<img src="./img/arch.PNG" width="100%" alt="architecture diagram">
 
 ## Contributing
 
