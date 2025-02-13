@@ -560,7 +560,7 @@ To associate every step we've done in the setup so far with the Generative AI Ag
 
     > **Note**: you can customize the welcome message when interacting with the user through chat, as well as providing some additional instructions to the RAG agent for it to follow during generations.
 
-In a few minutes, your agent will be ready to use!
+In a few minutes, your agent will be ready to use! Go to the next section to chat with your new agent.
 
 ## 3. Chat with your new agent
 
