@@ -9,11 +9,12 @@ This repository contains a collection of solutions revolving around Retrieval-Au
 Select the step-by-step guide closest to what you want to learn / solve:
 
 - [OCI Retrieval-Augmented Generations (RAG) with Generative AI Agents Service](./README_rag.md)
+- [Build with GenAI and RAG with Autonomous Database](./README_autonomous.md)
 - [OCI RAG: Automation & ORDS](./README_ords.md)
 
-Both guides are working with RAG in one way or the other. It's recommended to first take a look at **OCI Retrieval-Augmented Generations (RAG) with Generative AI Agents Service** as it also talks about deploying the required infrastructure in OCI.
+All guides are working with RAG in one way or the other. It's recommended to first take a look at **Build with GenAI and RAG with Autonomous Database** as it also talks about deploying the required infrastructure in OCI, and it's the most complete and customizable solution (as it's using the Oracle Autonomous Database 23AI service rather than OCI Object Storage or OpenSearch as storage mechanisms).
 
-The second solution (**OCI RAG: Automation & ORDS**) assumes you've deployed the infrastructure from the first solution.
+The third solution (**OCI RAG: Automation & ORDS**) assumes you've deployed the infrastructure from the first solution.
 
 ## Contributing
 
