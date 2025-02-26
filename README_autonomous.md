@@ -55,15 +55,6 @@ Use the OCI Generative AI Agents service for the following types of use cases:
 - Real Estate Market Analysis: RAG agents can help real estate professionals by aggregating and analyzing data from several sources, including market trends, property listings, and regulatory changes, to provide comprehensive market analyses.
 - Travel Planning and Help: In the travel industry, RAG agents can serve as interactive travel guides, pulling information on destinations, weather, local attractions, and regulations to provide personalized travel advice and itineraries.
 
-### Available Regions in OCI with the Generative AI Agents Service
-
-Oracle hosts its OCI services in regions and availability domains. A region is a localized geographic area, and an availability domain is one or more data centers in that region.
-
-OCI Generative AI Agents is hosted in the following region:
-
-- Region name: US Midwest (Chicago)
-- Region identifier: `us-chicago-1`
-
 ## 0. Prerequisites and setup
 
 ### Prerequisites
@@ -82,6 +73,7 @@ OCI Generative AI Agents is hosted in the following region:
 - [Oracle Cloud Infrastructure (OCI) Generative AI - Getting Started](https://docs.oracle.com/en-us/iaas/Content/generative-ai-agents/getting-started.htm#get-started)
 - [Oracle Cloud Infrastructure (OCI) Generative AI - API](https://docs.oracle.com/en-us/iaas/api/#/en/generative-ai-agents/20240531/)
 - [OCI GenAI Agents - Concepts](https://docs.public.oneportal.content.oci.oraclecloud.com/en-us/iaas/Content/generative-ai-agents/concepts.htm#concepts)
+- [LiveLabs - Deploy an ODA Chatbot powered by Generative AI Agents using 23ai Vector DB](https://livelabs.oracle.com/pls/apex/r/dbpm/livelabs/run-workshop?p210_wid=4070&p210_wec=&session=7267829819635)
 
 ### Setup
 
