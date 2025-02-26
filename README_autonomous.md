@@ -73,6 +73,7 @@ Use the OCI Generative AI Agents service for the following types of use cases:
 - [Oracle Cloud Infrastructure (OCI) Generative AI - Getting Started](https://docs.oracle.com/en-us/iaas/Content/generative-ai-agents/getting-started.htm#get-started)
 - [Oracle Cloud Infrastructure (OCI) Generative AI - API](https://docs.oracle.com/en-us/iaas/api/#/en/generative-ai-agents/20240531/)
 - [OCI GenAI Agents - Concepts](https://docs.public.oneportal.content.oci.oraclecloud.com/en-us/iaas/Content/generative-ai-agents/concepts.htm#concepts)
+- [LiveLabs - Deploy an ODA Chatbot powered by Generative AI Agents using 23ai Vector DB](https://livelabs.oracle.com/pls/apex/r/dbpm/livelabs/run-workshop?p210_wid=4070&p210_wec=&session=7267829819635)
 
 ### Setup
 
