@@ -186,7 +186,10 @@ Now, we need to create the Autonomous Database that will be used by the Generati
      - Provide valid email ID
    - Click Create Autonomous Database
 
-    <img src="./img/database_config.png" alt="database config">
+    <img src="./img/database_config_1.png" alt="database config">
+
+    <img src="./img/database_config_2.png" alt="database config">
+
 
 #### Task 5: Create Database Tools Connection
 
